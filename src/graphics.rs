@@ -65,7 +65,7 @@ impl WorldGrid {
             let y = (person.y * self.height as f32) as usize;
             let idx = x + y * self.width;
 
-            let (value, overflow ) = self.scratch_cells[idx].num_people.overflowing_add(50);
+            let (value, overflow) = self.scratch_cells[idx].num_people.overflowing_add(50);
             if overflow {
                 self.scratch_cells[idx].num_people = u8::MAX;
             } else {

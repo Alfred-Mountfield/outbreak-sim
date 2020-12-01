@@ -1,4 +1,4 @@
-use outbreak_sim::construct_pos_array;
+use outbreak_sim::People;
 use outbreak_sim::graphics;
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::{LogicalSize};
@@ -12,7 +12,7 @@ const SCREEN_HEIGHT: u32 = 500;
 
 
 fn main() -> Result<(), Error> {
-    let people = construct_pos_array(100_000);
+    let mut people = People::new(100_000);
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -61,7 +61,8 @@ fn main() -> Result<(), Error> {
             }
 
             // Update internal state and request a redraw
-            world.update(&people);
+            people.update();
+            world.update(&people.positions);
             window.request_redraw();
         }
     });
