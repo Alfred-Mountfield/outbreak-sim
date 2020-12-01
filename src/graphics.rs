@@ -1,29 +1,23 @@
 // Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
 
-use crate::Coord;
+use outbreak_sim::position::Coord;
+use outbreak_sim::disease;
+use outbreak_sim::Agents;
+
 
 #[derive(Clone, Copy, Debug, Default)]
 struct Cell {
-    pub num_people: u8,
+    // [Susceptible, Infectious, Recoverd]
+    pub num_people_with_ds: [u8; 3],
 }
 
 
 impl Cell {
-    fn new(num_people: u8) -> Self {
-        Self { num_people }
+    fn new() -> Self {
+        Self {
+            num_people_with_ds: [0; 3]
+        }
     }
-
-
-    // #[must_use]
-    // fn next_state(mut self, alive: bool) -> Self {
-    //     self.alive = alive;
-    //     if self.alive {
-    //         self.heat = 255;
-    //     } else {
-    //         self.heat = self.heat.saturating_sub(1);
-    //     }
-    //     self
-    // }
 }
 
 
@@ -50,26 +44,31 @@ impl WorldGrid {
         }
     }
 
-    pub fn update(&mut self, people: &Vec<Coord>) {
+    pub fn update(&mut self, agents: &Agents) {
         for y in 0..self.height {
             for x in 0..self.width {
-                // let neibs = self.count_neibs(x, y);
                 let idx = x + y * self.width;
-                // let next = self.cells[idx].update_neibs(neibs);
                 // Write into scratch_cells, since we're still reading from `self.cells`
-                self.scratch_cells[idx].num_people = 0;
+                self.scratch_cells[idx].num_people_with_ds = [0, 0, 0];
             }
         }
-        for person in people.iter() {
-            let x = (person.x * self.width as f32) as usize;
-            let y = (person.y * self.height as f32) as usize;
+        for i in 0..agents.num_agents {
+            let x = (agents.positions[i as usize].x * self.width as f32) as usize;
+            let y = (agents.positions[i as usize].y * self.height as f32) as usize;
             let idx = x + y * self.width;
 
-            let (value, overflow) = self.scratch_cells[idx].num_people.overflowing_add(50);
-            if overflow {
-                self.scratch_cells[idx].num_people = u8::MAX;
-            } else {
-                self.scratch_cells[idx].num_people = value;
+            let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
+            match agents.disease_statuses[i as usize].state {
+                disease::State::Susceptible => {
+                    num_people[0] = num_people[0].saturating_add(50);
+                    // println!("test");
+                },
+                disease::State::Infectious => {
+                    num_people[1] = num_people[1].saturating_add(50);
+                },
+                disease::State::Recovered => {
+                    num_people[1] = num_people[1].saturating_add(50);
+                }
             }
         }
         std::mem::swap(&mut self.scratch_cells, &mut self.cells);
@@ -78,7 +77,8 @@ impl WorldGrid {
     pub fn draw(&self, screen: &mut [u8]) {
         debug_assert_eq!(screen.len(), 4 * self.cells.len());
         for (c, pix) in self.cells.iter().zip(screen.chunks_exact_mut(4)) {
-            let color = [0, c.num_people, 0, 0];
+            // println!("{},{},{}", c.num_people_with_ds[0], c.num_people_with_ds[1], c.num_people_with_ds[2]);
+            let color = [c.num_people_with_ds[1], c.num_people_with_ds[0], c.num_people_with_ds[2], 0];
             pix.copy_from_slice(&color);
         }
     }

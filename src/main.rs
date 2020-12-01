@@ -1,5 +1,3 @@
-use outbreak_sim::People;
-use outbreak_sim::graphics;
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::{LogicalSize};
 use winit::event::{Event, VirtualKeyCode};
@@ -7,12 +5,16 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit_input_helper::WinitInputHelper;
 use winit::window::WindowBuilder;
 
-const SCREEN_WIDTH: u32 = 500;
-const SCREEN_HEIGHT: u32 = 500;
+const SCREEN_WIDTH: u32 = 800;
+const SCREEN_HEIGHT: u32 = 800;
+const WORLD_WIDTH: u8 = 50;
+const WORLD_HEIGHT: u8 = 50;
+
+mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let mut people = People::new(100_000);
+    let mut agents = outbreak_sim::Agents::new(50);
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -29,9 +31,9 @@ fn main() -> Result<(), Error> {
     let mut pixels = {
         let window_size = window.inner_size();
         let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
-        Pixels::new(SCREEN_WIDTH, SCREEN_HEIGHT, surface_texture)?
+        Pixels::new(WORLD_WIDTH as u32, WORLD_WIDTH as u32, surface_texture)?
     };
-    let mut world = graphics::WorldGrid::new_empty(SCREEN_WIDTH as usize, SCREEN_HEIGHT as usize);
+    let mut world = graphics::WorldGrid::new_empty(WORLD_HEIGHT as usize, WORLD_WIDTH as usize);
 
     event_loop.run(move |event, _, control_flow| {
         // Draw the current frame
@@ -61,8 +63,8 @@ fn main() -> Result<(), Error> {
             }
 
             // Update internal state and request a redraw
-            people.update();
-            world.update(&people.positions);
+            agents.update();
+            world.update(&agents);
             window.request_redraw();
         }
     });
