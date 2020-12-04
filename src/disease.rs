@@ -29,7 +29,7 @@ impl DiseaseStatus {
                 if self_i != i {
                     if disease_statuses[i].state == State::Infectious {
                         let dist = ((coord.x - positions[self_i].x).powi(2) + (coord.y - positions[self_i].y).powi(2)).sqrt();
-                        if dist < 0.05 {
+                        if dist < 0.005 {
                             disease_statuses[self_i].state = State::Infectious;
                         }
                     }
