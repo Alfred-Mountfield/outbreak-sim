@@ -60,14 +60,13 @@ impl WorldGrid {
             let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
             match agents.disease_statuses[i as usize].state {
                 disease::State::Susceptible => {
-                    num_people[0] = num_people[0].saturating_add(50);
-                    // println!("test");
+                    num_people[0] = num_people[0].saturating_add(150);
                 },
                 disease::State::Infectious => {
-                    num_people[1] = num_people[1].saturating_add(50);
+                    num_people[1] = num_people[1].saturating_add(150);
                 },
                 disease::State::Recovered => {
-                    num_people[1] = num_people[1].saturating_add(50);
+                    num_people[1] = num_people[1].saturating_add(150);
                 }
             }
         }

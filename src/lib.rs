@@ -2,6 +2,7 @@ use rand::rngs::StdRng;
 use rand::{SeedableRng};
 use position::Coord;
 use crate::disease::DiseaseStatus;
+use std::path::Path;
 
 pub mod disease;
 pub mod position;
@@ -14,11 +15,13 @@ pub struct Agents {
 }
 
 impl Agents {
-    pub fn new(num_agents: u64) -> Agents {
+    pub fn new(raster_path: &Path) -> Agents {
         let mut rng = StdRng::seed_from_u64(32);
+        let positions = position::construct_pos_array_from_txt(raster_path);
+        let num_agents = positions.len() as u64;
         Agents {
             num_agents,
-            positions: position::construct_pos_array(num_agents, &mut rng),
+            positions,
             disease_statuses: disease::construct_disease_status_array(num_agents, &mut rng),
             rng
         }

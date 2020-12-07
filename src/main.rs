@@ -4,6 +4,7 @@ use winit::event::{Event, VirtualKeyCode};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit_input_helper::WinitInputHelper;
 use winit::window::WindowBuilder;
+use std::path::Path;
 
 const SCREEN_WIDTH: u32 = 1000;
 const SCREEN_HEIGHT: u32 = 1000;
@@ -14,7 +15,7 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let mut agents = outbreak_sim::Agents::new(1_000);
+    let mut agents = outbreak_sim::Agents::new(&Path::new("python/data/tower_hamlets_wp.txt"));
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -63,7 +64,7 @@ fn main() -> Result<(), Error> {
             }
 
             // Update internal state and request a redraw
-            agents.update();
+            // agents.update();
             world.update(&agents);
             window.request_redraw();
         }
