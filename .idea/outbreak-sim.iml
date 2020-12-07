@@ -5,6 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/python/venv" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/python/data/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/.ipynb_checkpoints" />
     </content>
     <orderEntry type="jdk" jdkName="3.8 @ Ubuntu (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
