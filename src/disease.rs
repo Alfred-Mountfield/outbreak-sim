@@ -1,4 +1,4 @@
-use crate::position::Coord;
+use crate::shared::Coord;
 use rand::rngs::StdRng;
 use rand::Rng;
 

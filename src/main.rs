@@ -5,17 +5,18 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit_input_helper::WinitInputHelper;
 use winit::window::WindowBuilder;
 use std::path::Path;
+use outbreak_sim::agents;
 
-const SCREEN_WIDTH: u32 = 1000;
-const SCREEN_HEIGHT: u32 = 1000;
-const WORLD_WIDTH: u32 = 300;
-const WORLD_HEIGHT: u32 = 300;
+const SCREEN_WIDTH: u32 = 800;
+const SCREEN_HEIGHT: u32 = 800;
+const WORLD_WIDTH: u32 = 200;
+const WORLD_HEIGHT: u32 = 200;
 
 mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let mut agents = outbreak_sim::Agents::new(&Path::new("python/data/tower_hamlets_wp.txt"));
+    let mut agents = agents::Agents::new(&Path::new("python/data/sm_wp.txt"));
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();

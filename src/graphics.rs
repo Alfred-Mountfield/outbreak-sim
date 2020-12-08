@@ -1,13 +1,13 @@
 // Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
 
-use outbreak_sim::position::Coord;
+use outbreak_sim::shared::Coord;
 use outbreak_sim::disease;
-use outbreak_sim::Agents;
+use outbreak_sim::agents::Agents;
 
 
 #[derive(Clone, Copy, Debug, Default)]
 struct Cell {
-    // [Susceptible, Infectious, Recoverd]
+    // [Susceptible, Infectious, Recovered]
     pub num_people_with_ds: [u8; 3],
 }
 
@@ -74,7 +74,7 @@ impl WorldGrid {
     }
 
     pub fn draw(&self, screen: &mut [u8]) {
-        debug_assert_eq!(screen.len(), 4 * self.cells.len());
+        // debug_assert_eq!(screen.len(), 4 * self.cells.len());
         for (c, pix) in self.cells.iter().zip(screen.chunks_exact_mut(4)) {
             // println!("{},{},{}", c.num_people_with_ds[0], c.num_people_with_ds[1], c.num_people_with_ds[2]);
             let color = [c.num_people_with_ds[1], c.num_people_with_ds[0], c.num_people_with_ds[2], 0];
