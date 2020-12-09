@@ -22,6 +22,7 @@ impl Coord {
         }
     }
 
+    // TODO migrate and isolate this to Agents
     pub fn update(&mut self, rng: &mut StdRng) {
         let new_x = self.x + (rng.gen_range(-0.005, 0.005));
         if new_x > 1.0 {
