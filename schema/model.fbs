@@ -1,0 +1,13 @@
+namespace OutbreakSim.Model;
+
+struct Vec3 {
+  x:float;
+  y:float;
+  z:float;
+}
+
+table Model {
+}
+
+
+root_type Model;
