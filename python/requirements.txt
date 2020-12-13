@@ -19,7 +19,9 @@ descartes==1.1.0
 entrypoints==0.3
 Fiona==1.8.18
 flatbuffers==1.12
+geographiclib==1.50
 geopandas==0.8.1
+geopy==2.0.0
 idna==2.10
 ipykernel==5.3.4
 ipython==7.19.0
