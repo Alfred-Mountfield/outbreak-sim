@@ -18,6 +18,7 @@ defusedxml==0.6.0
 descartes==1.1.0
 entrypoints==0.3
 Fiona==1.8.18
+flatbuffers==1.12
 geopandas==0.8.1
 idna==2.10
 ipykernel==5.3.4
