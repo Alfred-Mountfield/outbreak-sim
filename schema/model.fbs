@@ -1,13 +1,37 @@
 namespace OutbreakSim.Model;
 
-struct Vec3 {
+struct Vec2 {
   x:float;
   y:float;
-  z:float;
+}
+
+table Agents {
+  age:[uint8] (required);
+  household_index:[uint32];
+  workplace_index:[uint32];
+}
+
+// TODO Parent Buildings for Lifts, Shared Gyms, etc.
+table Households {
+  pos:[Vec2] (required);
+  //container_index:[uint32] (required);
+}
+
+table Workplaces {
+  pos:[Vec2] (required);
+  //container_index:[uint32] (required);
+}
+
+struct Container {
+  width:uint16;
+  height:uint16;
 }
 
 table Model {
+  agents:Agents (required);
+  households:Households (required);
+  workplaces:Workplaces (required);
+  containers:[Container] (required);
 }
-
 
 root_type Model;
