@@ -7,7 +7,7 @@ struct Vec2 {
 
 table Agents {
   age:[uint8] (required);
-  household_index:[uint32];
+  household_index:[uint32] (required);
   workplace_index:[uint32];
 }
 
@@ -30,8 +30,8 @@ struct Container {
 table Model {
   agents:Agents (required);
   households:Households (required);
-  workplaces:Workplaces (required);
-  containers:[Container] (required);
+  workplaces:Workplaces;
+  containers:[Container];
 }
 
 root_type Model;
