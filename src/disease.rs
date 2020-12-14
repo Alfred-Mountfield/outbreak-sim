@@ -1,6 +1,6 @@
-use crate::shared::Coord;
 use rand::rngs::StdRng;
 use rand::Rng;
+use crate::flatbuffer::Vec2;
 
 // Infection and Disease Progression
 #[derive(PartialEq)]
@@ -23,12 +23,12 @@ impl DiseaseStatus {
         }
     }
 
-    pub fn update(self_i: usize, disease_statuses: &mut Vec<DiseaseStatus>, positions: &Vec<Coord>) {
+    pub fn update(self_i: usize, disease_statuses: &mut Vec<DiseaseStatus>, positions: &[Vec2]) {
         if disease_statuses[self_i].state == State::Susceptible {
             for (i, coord) in positions.iter().enumerate() {
                 if self_i != i {
                     if disease_statuses[i].state == State::Infectious {
-                        let dist = ((coord.x - positions[self_i].x).powi(2) + (coord.y - positions[self_i].y).powi(2)).sqrt();
+                        let dist = ((coord.x() - positions[self_i].x()).powi(2) + (coord.y() - positions[self_i].y()).powi(2)).sqrt();
                         if dist < 0.005 {
                             disease_statuses[self_i].state = State::Infectious;
                         }

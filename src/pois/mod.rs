@@ -1,9 +1,9 @@
-use crate::shared::Coord;
+use crate::flatbuffer::Vec2;
 
 pub mod household;
 
 struct Building {
-    position: Coord,
+    position: Vec2,
     width: u8,
 
 }

@@ -4,8 +4,7 @@ use winit::event::{Event, VirtualKeyCode};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit_input_helper::WinitInputHelper;
 use winit::window::WindowBuilder;
-use std::path::Path;
-use outbreak_sim::agents;
+use outbreak_sim::{agents, read_buffer, get_root_as_model};
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 800;
@@ -16,8 +15,11 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let mut agents = agents::Agents::new(&Path::new("python/data/sm_wp.txt"));
-
+    let bytes = read_buffer("python/synthetic_population/output/model_tower_hamlets_150k.txt");
+    let model = get_root_as_model(&bytes);
+    let household_positions = model.households().pos();
+    let agents = agents::Agents::new(household_positions);
+    // println!("{}", model.households().pos()[0].x());
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
     let window = {

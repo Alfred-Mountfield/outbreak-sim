@@ -1,9 +1,6 @@
 // Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
-
-use outbreak_sim::shared::Coord;
 use outbreak_sim::disease;
 use outbreak_sim::agents::Agents;
-
 
 #[derive(Clone, Copy, Debug, Default)]
 struct Cell {
@@ -53,8 +50,8 @@ impl WorldGrid {
             }
         }
         for i in 0..agents.num_agents {
-            let x = (agents.positions[i as usize].x * self.width as f32) as usize;
-            let y = (agents.positions[i as usize].y * self.height as f32) as usize;
+            let x = (agents.positions[i as usize].x() * self.width as f32) as usize;
+            let y = (((agents.positions[i as usize].y() - 1.0) * self.height as f32).abs()) as usize;
             let idx = x + y * self.width;
 
             let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
