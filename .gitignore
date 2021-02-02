@@ -1,3 +1,5 @@
 /target
 venv/
 .ipynb_checkpoints/
+/python/generated/
+/python/data/

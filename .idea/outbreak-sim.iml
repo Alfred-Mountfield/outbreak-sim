@@ -7,6 +7,8 @@
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/python/data/.ipynb_checkpoints" />
       <excludeFolder url="file://$MODULE_DIR$/python/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/synthetic_population/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/generated" />
     </content>
     <orderEntry type="jdk" jdkName="3.8 @ Ubuntu (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
