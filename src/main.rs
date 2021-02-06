@@ -8,8 +8,8 @@ use outbreak_sim::{agents, read_buffer, get_root_as_model};
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 800;
-const WORLD_WIDTH: u32 = 200;
-const WORLD_HEIGHT: u32 = 200;
+const WORLD_WIDTH: u32 = 800;
+const WORLD_HEIGHT: u32 = 800;
 
 mod graphics;
 
