@@ -15,7 +15,7 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let bytes = read_buffer("python/synthetic_population/output/model_mid_south_london_1m.txt");
+    let bytes = read_buffer("python/synthetic_population/output/model_london_se_commuter_ring_8m.txt");
     let model = get_root_as_model(&bytes);
     let household_positions = model.households().pos();
     let agents = agents::Agents::new(household_positions);

@@ -27,10 +27,27 @@ struct Container {
   height:uint16;
 }
 
+struct TransitNode {
+  pos:Vec2;
+}
+
+struct TransitEdge {
+  start_node_index:uint16;
+  end_node_index:uint16;
+  weight:uint8;
+  //transit_type:TransitType;
+}
+
+table TransitGraph {
+  nodes:[TransitNode];
+  edges:[TransitEdge];
+}
+
 table Model {
   agents:Agents (required);
   households:Households (required);
-  workplaces:Workplaces;
+  workplaces:Workplaces (required);
+  transit_graph:TransitGraph (required);
   containers:[Container];
 }
 
