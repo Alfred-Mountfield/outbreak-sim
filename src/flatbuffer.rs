@@ -12,6 +12,7 @@ mod model_generated;
 pub use model_generated::outbreak_sim::model::{
     get_root_as_model,
     Vec2,
+    Bounds,
     Agents,
     Households,
     Workplaces,

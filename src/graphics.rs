@@ -1,5 +1,5 @@
 // Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
-use outbreak_sim::disease;
+use outbreak_sim::{disease, Bounds};
 use outbreak_sim::agents::Agents;
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -41,7 +41,7 @@ impl WorldGrid {
         }
     }
 
-    pub fn update(&mut self, agents: &Agents) {
+    pub fn update(&mut self, agents: &Agents, bounds: &Bounds) {
         for y in 0..self.height {
             for x in 0..self.width {
                 let idx = x + y * self.width;
@@ -50,8 +50,8 @@ impl WorldGrid {
             }
         }
         for i in 0..agents.num_agents {
-            let x = (agents.positions[i as usize].x() * self.width as f32) as usize;
-            let y = (((agents.positions[i as usize].y() - 1.0) * self.height as f32).abs()) as usize;
+            let x = ((agents.positions[i as usize].x() / bounds.max().x()) * self.width as f32) as usize;
+            let y = ((((agents.positions[i as usize].y() / bounds.max().y()) - 1.0) * self.height as f32).abs()) as usize;
             let idx = x + y * self.width;
 
             let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
