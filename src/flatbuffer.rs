@@ -11,12 +11,15 @@ mod model_generated;
 
 pub use model_generated::outbreak_sim::model::{
     get_root_as_model,
-    Agents,
-    Container,
-    Households,
-    Model,
     Vec2,
+    Agents,
+    Households,
     Workplaces,
+    Container,
+    TransitNode,
+    TransitEdge,
+    TransitGraph,
+    Model,
 };
 
 pub fn read_buffer(path: &str) -> Vec<u8> {
