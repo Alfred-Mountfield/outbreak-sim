@@ -5,6 +5,11 @@ struct Vec2 {
   y:float;
 }
 
+struct Bounds {
+  min:Vec2;
+  max:Vec2;
+}
+
 table Agents {
   age:[uint8] (required);
   household_index:[uint32] (required);
@@ -44,6 +49,7 @@ table TransitGraph {
 }
 
 table Model {
+  bounds:Bounds (required);
   agents:Agents (required);
   households:Households (required);
   workplaces:Workplaces (required);
