@@ -9,6 +9,7 @@ use std::time::Instant;
 use rand::Rng;
 use rayon::prelude::*;
 use fast_paths::ShortestPath;
+use outbreak_sim::routing::nodes_to_granular_grid;
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 800;
@@ -25,7 +26,7 @@ fn main() -> Result<(), Error> {
     let household_positions = model.households().pos();
     let mut transit_graph = model.transit_graph().to_owned();
     let fast_graph = routing::preprocess_graph(&mut transit_graph);
-
+    nodes_to_granular_grid(&transit_graph, &bounds);
 
     let agents = agents::Agents::new(household_positions);
     let event_loop = EventLoop::new();
