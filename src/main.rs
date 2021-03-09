@@ -9,7 +9,7 @@ use std::time::Instant;
 use rand::{Rng, SeedableRng};
 use rayon::prelude::*;
 use fast_paths::ShortestPath;
-use outbreak_sim::routing::nodes_to_granular_grid;
+use outbreak_sim::routing::{nodes_to_granular_grid, sample_nearby_from_grid};
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 
@@ -25,7 +25,8 @@ fn main() -> Result<(), Error> {
     let bytes = read_buffer("python/synthetic_population/output/model_greater_manchester_1m.txt");
     // let bytes = read_buffer("python/synthetic_population/output/model_london_se_commuter_ring_8m.txt");
     let model = get_root_as_model(&bytes);
-    let bounds = model.bounds().to_owned();
+    // TODO Ensure that this is non-inclusive
+    let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise
 
     let agent_households = model.agents().household_index();
     let household_positions = model.households().pos();
@@ -40,7 +41,7 @@ fn main() -> Result<(), Error> {
 
     println!("Creating Granular Grid of Transit Nodes");
     let now = Instant::now();
-    let transit_node_grid = nodes_to_granular_grid(&transit_graph, &bounds);
+    let transit_node_grid = nodes_to_granular_grid(&transit_graph, &bounds, 50);
     println!("{:.6}", now.elapsed().as_secs_f64());
 
     let workplace_indices = model.agents().workplace_index().unwrap().safe_slice();
@@ -49,8 +50,8 @@ fn main() -> Result<(), Error> {
     println!("Finding all transit nodes at cell for each person sequentially");
     let now = Instant::now();
     let mut rng = rand::thread_rng();
-    agents.positions.iter().zip(workplace_indices.iter()).for_each(|(pos, workplace)| {
-        if *workplace != u32::MAX {
+    agents.positions.iter().zip(workplace_indices.iter()).for_each(|(pos, workplace_idx)| {
+        if *workplace_idx != u32::MAX {
             transit_node_grid[[pos.x(), pos.y()]].choose(&mut rng);
         }
     });
@@ -62,53 +63,72 @@ fn main() -> Result<(), Error> {
     agents.positions.par_iter().zip(workplace_indices.par_iter())
         .for_each_init(
             || rand::thread_rng(),
-            |mut rng, (pos, workplace)| {
-                if *workplace != u32::MAX {
+            |mut rng, (pos, workplace_idx)| {
+                if *workplace_idx != u32::MAX {
                     transit_node_grid[[pos.x(), pos.y()]].choose(&mut rng);
                 }
     });
     println!("{:.6}", now.elapsed().as_secs_f64());
 
-    // println!("Calculating all workplace public transit commutes sequentially");
-    // let now = Instant::now();
-    // let mut rng = rand::thread_rng();
-    // agents.positions.iter().zip(workplace_indices.iter())
-    //     .for_each(
-    //         |(pos, workplace_idx)| {
-    //             if *workplace_idx != u32::MAX {
-    //                 let src_node = transit_node_grid[[pos.x(), pos.y()]].choose(&mut rng).unwrap();
-    //
-    //                 let workplace_position = workplace_positions[*workplace_idx as usize];
-    //                 let dest_node = transit_node_grid[[workplace_position.x(), workplace_position.y()]].choose(&mut rng).unwrap();
-    //
-    //                 fast_paths::calc_path(&fast_graph, *src_node, *dest_node);
-    //             }
-    //         });
-    // println!("{:.6}", now.elapsed().as_secs_f64());
-    // drop(rng);
-    //
-    // println!("Finding all transit nodes at cell for each person in parallel");
-    // let now = Instant::now();
-    // agents.positions.par_iter().zip(workplace_indices.par_iter())
-    //     .for_each_init(
-    //         || (rand::thread_rng(), fast_paths::create_calculator(&fast_graph)),
-    //         |(mut rng, path_calculator), (pos, workplace_idx)| {
-    //             if *workplace_idx != u32::MAX {
-    //                 let src_node = transit_node_grid[[pos.x(), pos.y()]].choose(&mut rng).unwrap();
-    //
-    //                 let workplace_position = workplace_positions[*workplace_idx  as usize];
-    //                 let dest_node = transit_node_grid[[workplace_position.x(), workplace_position.y()]].choose(&mut rng).unwrap();
-    //
-    //                 path_calculator.calc_path(&fast_graph, *src_node, *dest_node);
-    //             }
-    //         });
-    // println!("{:.6}", now.elapsed().as_secs_f64());
+    println!("Choosing a transit node for each person sequentially");
+    let now = Instant::now();
+    let mut rng = rand::thread_rng();
+    agents.positions.iter().zip(workplace_indices.iter()).for_each(|(pos, workplace_idx)| {
+        if *workplace_idx != u32::MAX {
+            let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+        }
+    });
+    println!("{:.6}", now.elapsed().as_secs_f64());
+    drop(now);
 
+    println!("Choosing a transit node for each person in parallel");
+    let now = Instant::now();
+    agents.positions.par_iter().zip(workplace_indices.par_iter())
+        .for_each_init(
+            || rand::thread_rng(),
+            |mut rng, (pos, workplace_idx)| {
+                if *workplace_idx != u32::MAX {
+                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+                }
+            });
+    println!("{:.6}", now.elapsed().as_secs_f64());
 
-    // let mut path_calculator = fast_paths::create_calculator(&fast_graph);
-    // agents.positions.par_iter().map(|pos| {
-    //     fast_paths::calc_path(&fast_graph, )
-    // });
+    println!("Calculating all workplace public transit commutes sequentially");
+    let now = Instant::now();
+    let mut rng = rand::thread_rng();
+    let mut path_calculator = fast_paths::create_calculator(&fast_graph);
+
+    agents.positions.iter().zip(workplace_indices.iter())
+        .for_each(
+            |(pos, workplace_idx)| {
+                if *workplace_idx != u32::MAX {
+                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+                    let workplace_position = workplace_positions[*workplace_idx as usize];
+                    let dest_node = sample_nearby_from_grid(&transit_node_grid, (workplace_position.x(), workplace_position.y()), 2_000.0, &mut rng).unwrap();
+
+                    path_calculator.calc_path(&fast_graph, *src_node, *dest_node);
+                }
+            });
+    println!("{:.6}", now.elapsed().as_secs_f64());
+    drop(rng); drop(path_calculator);
+
+    println!("Calculating all workplace public transit commutes in parallel");
+    let now = Instant::now();
+    agents.positions.par_iter().zip(workplace_indices.par_iter())
+        .for_each_init(
+            || (rand::thread_rng(), fast_paths::create_calculator(&fast_graph)),
+            |(mut rng, path_calculator), (pos, workplace_idx)| {
+                if *workplace_idx != u32::MAX {
+                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+                    let workplace_position = workplace_positions[*workplace_idx as usize];
+                    let dest_node = sample_nearby_from_grid(&transit_node_grid, (workplace_position.x(), workplace_position.y()), 2_000.0, &mut rng).unwrap();
+
+                    path_calculator.calc_path(&fast_graph, *src_node, *dest_node);
+                }
+            });
+    println!("{:.6}", now.elapsed().as_secs_f64());
+    drop(rng);
+
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
