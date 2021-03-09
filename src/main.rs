@@ -21,14 +21,18 @@ mod graphics;
 
 fn main() -> Result<(), Error> {
     let bytes = read_buffer("python/synthetic_population/output/model_greater_manchester_1m.txt");
+    // let bytes = read_buffer("python/synthetic_population/output/model_london_se_commuter_ring_8m.txt");
     let model = get_root_as_model(&bytes);
     let bounds = model.bounds().to_owned();
-    let household_positions = model.households().pos();
-    let mut transit_graph = model.transit_graph().to_owned();
-    let fast_graph = routing::preprocess_graph(&mut transit_graph);
-    nodes_to_granular_grid(&transit_graph, &bounds);
+    let transit_graph = model.transit_graph();
+    let fast_graph = routing::preprocess_graph(&transit_graph);
+    let transit_node_grid = nodes_to_granular_grid(&transit_graph, &bounds);
 
-    let agents = agents::Agents::new(household_positions);
+    let agent_households = model.agents().household_index();
+    let household_positions = model.households().pos();
+    let agents = agents::Agents::new(agent_households, household_positions);
+
+
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
     let window = {

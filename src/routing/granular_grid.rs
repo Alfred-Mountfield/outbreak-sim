@@ -2,35 +2,45 @@ use crate::flatbuffer::TransitNode;
 use std::iter;
 use std::ops::{Index, IndexMut};
 use std::ops;
+use crate::Bounds;
 
 pub struct GranularGrid<T> {
     rows: u32,
     cols: u32,
-    cells: Vec<Vec<T>>
+    bounds: Bounds,
+    cells: Vec<Vec<T>>,
 }
 
 impl<T> GranularGrid<T> {
-    pub fn new(rows: u32, cols: u32) -> Self {
+    pub fn new(rows: u32, cols: u32, bounds: &Bounds) -> Self {
         let size = (rows as usize).checked_mul(cols as usize).expect("too big");
+
         let cells = iter::repeat_with(|| Vec::<T>::new()).take(size).collect();
         Self {
             rows,
             cols,
-            cells
+            bounds: bounds.to_owned(),
+            cells,
         }
     }
+//     TODO is fn get_int_index necessary
 }
 
-impl<T> Index<[usize; 2]> for GranularGrid<T> {
+impl<T> Index<[f32; 2]> for GranularGrid<T> {
     type Output = Vec<T>;
 
-    fn index(&self, idx: [usize; 2]) -> &Self::Output {
-        &self.cells[idx[0] * self.cols as usize + idx[1]]
+    fn index(&self, idx: [f32; 2]) -> &Self::Output {
+        let norm_x = (idx[0] / self.bounds.max().x()) as usize;
+        let norm_y = (idx[1] / self.bounds.max().y()) as usize;
+
+        &self.cells[norm_x * self.cols as usize + norm_y]
     }
 }
 
-impl<T> IndexMut<[usize; 2]> for GranularGrid<T> {
-    fn index_mut(&mut self, idx: [usize; 2]) -> &mut Self::Output {
-        &mut self.cells[idx[0] * self.cols as usize + idx[1]]
+impl<T> IndexMut<[f32; 2]> for GranularGrid<T> {
+    fn index_mut(&mut self, idx: [f32; 2]) -> &mut Self::Output {
+        let norm_x = (idx[0] / self.bounds.max().x()) as usize;
+        let norm_y = (idx[1] / self.bounds.max().y()) as usize;
+        &mut self.cells[norm_x * self.cols as usize + norm_y]
     }
 }
