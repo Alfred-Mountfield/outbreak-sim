@@ -30,8 +30,8 @@ impl<T> Index<[f32; 2]> for GranularGrid<T> {
     type Output = Vec<T>;
 
     fn index(&self, idx: [f32; 2]) -> &Self::Output {
-        let norm_x = (idx[0] / self.bounds.max().x()) as usize;
-        let norm_y = (idx[1] / self.bounds.max().y()) as usize;
+        let norm_x = ((idx[0] / self.bounds.max().x()) * self.cols as f32) as usize;
+        let norm_y = ((idx[1] / self.bounds.max().y()) * self.rows as f32) as usize;
 
         &self.cells[norm_x * self.cols as usize + norm_y]
     }
