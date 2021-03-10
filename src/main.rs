@@ -22,8 +22,9 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let bytes = read_buffer("python/synthetic_population/output/model_greater_manchester_1m.txt");
-    // let bytes = read_buffer("python/synthetic_population/output/model_london_se_commuter_ring_8m.txt");
+    // let bytes = read_buffer("python/synthetic_population/output/model_greater_manchester.txt");
+    // let bytes = read_buffer("python/synthetic_population/output/model_london_se_commuter_ring.txt");
+    let bytes = read_buffer("python/synthetic_population/output/model_tower_hamlets.txt");
     let model = get_root_as_model(&bytes);
     // TODO Ensure that this is non-inclusive
     let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise

@@ -46,7 +46,7 @@ fn get_coords_on_perimeter(center_row: isize, center_col: isize, dist: isize, ro
 
     if center_row >= dist { // Top line
         for col in (max((center_col - dist), 0))..(min((center_col + dist + 1), cols as isize)) { // left to right
-            coords.push( ((center_row - dist) as u32, col as u32));
+            coords.push(((center_row - dist) as u32, col as u32));
         }
     }
     if center_col + dist < cols as isize { // Right Line
@@ -98,3 +98,33 @@ pub fn sample_nearby_from_grid<'a, R>(grid: &'a GranularGrid<usize>, centre: (f3
     None
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_coords_on_perimeter() {
+        let coords = get_coords_on_perimeter(2, 0, 0, 7, 7);
+        let expected = vec![(2, 0)];
+        assert_eq!(coords, expected);
+
+        let coords = get_coords_on_perimeter(2, 0, 1, 7, 7);
+        let expected = vec![
+            (1, 0), (1, 1),
+            (2, 1),
+            (3, 0), (3, 1)
+        ];
+        assert_eq!(coords, expected);
+
+        let coords = get_coords_on_perimeter(4, 5, 3, 7, 7);
+        let expected = vec![
+            (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+            (2, 2),
+            (3, 2),
+            (4, 2),
+            (5, 2),
+            (6, 2),
+        ];
+        assert_eq!(coords, expected);
+    }
+}
