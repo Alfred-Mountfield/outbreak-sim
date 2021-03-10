@@ -41,7 +41,7 @@ fn main() -> Result<(), Error> {
 
     println!("Creating Granular Grid of Transit Nodes");
     let now = Instant::now();
-    let transit_node_grid = nodes_to_granular_grid(&transit_graph, &bounds, 50);
+    let transit_node_grid = nodes_to_granular_grid(&transit_graph, &bounds, 200);
     println!("{:.6}", now.elapsed().as_secs_f64());
 
     let workplace_indices = model.agents().workplace_index().unwrap().safe_slice();
@@ -52,7 +52,7 @@ fn main() -> Result<(), Error> {
     let mut rng = rand::thread_rng();
     agents.positions.iter().zip(workplace_indices.iter()).for_each(|(pos, workplace_idx)| {
         if *workplace_idx != u32::MAX {
-            transit_node_grid[[pos.x(), pos.y()]].choose(&mut rng);
+            transit_node_grid[[pos.y(), pos.x()]].choose(&mut rng);
         }
     });
     drop(now);
@@ -65,7 +65,7 @@ fn main() -> Result<(), Error> {
             || rand::thread_rng(),
             |mut rng, (pos, workplace_idx)| {
                 if *workplace_idx != u32::MAX {
-                    transit_node_grid[[pos.x(), pos.y()]].choose(&mut rng);
+                    transit_node_grid[[pos.y(), pos.x()]].choose(&mut rng);
                 }
     });
     println!("{:.6}", now.elapsed().as_secs_f64());
@@ -75,7 +75,7 @@ fn main() -> Result<(), Error> {
     let mut rng = rand::thread_rng();
     agents.positions.iter().zip(workplace_indices.iter()).for_each(|(pos, workplace_idx)| {
         if *workplace_idx != u32::MAX {
-            let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+            let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.y(), pos.x()), 8_000.0, &mut rng).unwrap();
         }
     });
     println!("{:.6}", now.elapsed().as_secs_f64());
@@ -88,7 +88,7 @@ fn main() -> Result<(), Error> {
             || rand::thread_rng(),
             |mut rng, (pos, workplace_idx)| {
                 if *workplace_idx != u32::MAX {
-                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.y(), pos.x()), 8_000.0, &mut rng).unwrap();
                 }
             });
     println!("{:.6}", now.elapsed().as_secs_f64());
@@ -102,9 +102,9 @@ fn main() -> Result<(), Error> {
         .for_each(
             |(pos, workplace_idx)| {
                 if *workplace_idx != u32::MAX {
-                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.y(), pos.x()), 8_000.0, &mut rng).unwrap();
                     let workplace_position = workplace_positions[*workplace_idx as usize];
-                    let dest_node = sample_nearby_from_grid(&transit_node_grid, (workplace_position.x(), workplace_position.y()), 2_000.0, &mut rng).unwrap();
+                    let dest_node = sample_nearby_from_grid(&transit_node_grid, (workplace_position.y(), workplace_position.x()), 8_000.0, &mut rng).unwrap();
 
                     path_calculator.calc_path(&fast_graph, *src_node, *dest_node);
                 }
@@ -119,9 +119,9 @@ fn main() -> Result<(), Error> {
             || (rand::thread_rng(), fast_paths::create_calculator(&fast_graph)),
             |(mut rng, path_calculator), (pos, workplace_idx)| {
                 if *workplace_idx != u32::MAX {
-                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.x(), pos.y()), 2_000.0, &mut rng).unwrap();
+                    let src_node = sample_nearby_from_grid(&transit_node_grid, (pos.y(), pos.x()), 8_000.0, &mut rng).unwrap();
                     let workplace_position = workplace_positions[*workplace_idx as usize];
-                    let dest_node = sample_nearby_from_grid(&transit_node_grid, (workplace_position.x(), workplace_position.y()), 2_000.0, &mut rng).unwrap();
+                    let dest_node = sample_nearby_from_grid(&transit_node_grid, (workplace_position.y(), workplace_position.x()), 8_000.0, &mut rng).unwrap();
 
                     path_calculator.calc_path(&fast_graph, *src_node, *dest_node);
                 }
