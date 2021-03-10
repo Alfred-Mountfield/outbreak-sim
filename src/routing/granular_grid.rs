@@ -80,7 +80,6 @@ mod tests {
     use super::*;
     use crate::flatbuffer::Vec2;
 
-
     #[test]
     fn test_new_granular_grid() {
         let rows = 10;

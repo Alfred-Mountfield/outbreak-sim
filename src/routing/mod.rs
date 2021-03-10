@@ -9,6 +9,7 @@ use std::cmp::{max, min};
 
 mod granular_grid;
 
+/// Creates a fast_paths Graph from the FlatBuffers TransitGraph edges data
 pub fn preprocess_graph(transit_graph: &TransitGraph) -> FastGraph {
     let mut input_graph = InputGraph::new();
 
@@ -21,6 +22,7 @@ pub fn preprocess_graph(transit_graph: &TransitGraph) -> FastGraph {
     fast_paths::prepare(&input_graph)
 }
 
+/// Creates a GranularGrid of TransitNodes
 pub fn nodes_to_granular_grid(transit_graph: &TransitGraph, bounds: &Bounds, rows: u32) -> GranularGrid<usize> {
     let mut grid = GranularGrid::<usize>::new(rows, bounds);
     for (index, node) in transit_graph.nodes().unwrap().iter().enumerate() {
@@ -30,6 +32,15 @@ pub fn nodes_to_granular_grid(transit_graph: &TransitGraph, bounds: &Bounds, row
     grid
 }
 
+/// Returns (row, col) coordinates of the perimeter of a square on a grid, taking into consideration
+/// the bounds of the grid, only returning valid indices.
+///
+///  # Arguments
+/// * `center_row` - The row index of the center point of the square
+/// * `center_col` - The column index of the center point of the square
+/// * `dist` - The radius of the square, i.e. the perimeter's distance from the center
+/// * `rows` - The number of rows in the grid
+/// * `cols` - The number of columns in the grid
 fn get_coords_on_perimeter(center_row: isize, center_col: isize, dist: isize, rows: u32, cols: u32) -> Vec<(u32, u32)> {
     let mut coords = Vec::with_capacity((8 * dist) as usize);
 
@@ -56,6 +67,14 @@ fn get_coords_on_perimeter(center_row: isize, center_col: isize, dist: isize, ro
     coords
 }
 
+/// Tries to sample an element from a GranularGrid, checking in squares of increasing size from the
+/// cell of a given co-ordinate.
+///
+///  # Arguments
+/// * `grid` - The GranularGrid containing the elements to sample from
+/// * `centre` - A (y,x) co-ordinate to approximately search around
+/// * `cut_off` - The approximate maximum distance at which to stop searching
+/// * `rng` - Rng to pass to the choose() function for sampling
 pub fn sample_nearby_from_grid<'a, R>(grid: &'a GranularGrid<usize>, centre: (f32, f32), cut_off: f32, rng: &mut R) -> Option<&'a usize>
     where R: Rng + ?Sized {
     let mut dist: u32 = 0;
@@ -78,3 +97,4 @@ pub fn sample_nearby_from_grid<'a, R>(grid: &'a GranularGrid<usize>, centre: (f3
 
     None
 }
+
