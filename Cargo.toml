@@ -6,6 +6,9 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[dev-dependencies]
+criterion = "0.3.4"
+
 [dependencies]
 rand = "^0"
 pixels = "0.2.0"
@@ -14,3 +17,7 @@ winit_input_helper = "0.8.0"
 flatbuffers = "0.7.0"
 fast_paths = "0.1.0"
 rayon = "1.5.0"
+
+[[bench]]
+name = "routing"
+harness = false

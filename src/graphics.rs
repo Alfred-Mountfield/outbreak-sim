@@ -1,5 +1,5 @@
 // Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
-use outbreak_sim::{disease, Bounds};
+use outbreak_sim::{Bounds, disease};
 use outbreak_sim::agents::Agents;
 
 #[derive(Clone, Copy, Debug, Default)]

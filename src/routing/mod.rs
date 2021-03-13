@@ -1,11 +1,13 @@
-use fast_paths::{InputGraph, FastGraph};
-use crate::flatbuffer::TransitGraph;
-use crate::routing::granular_grid::GranularGrid;
-use crate::Bounds;
-use crate::flatbuffer::Vec2;
-use rand::seq::{SliceRandom, IteratorRandom};
-use rand::Rng;
 use std::cmp::{max, min};
+
+use fast_paths::{FastGraph, InputGraph};
+use rand::Rng;
+use rand::seq::{IteratorRandom, SliceRandom};
+
+use crate::Bounds;
+use crate::flatbuffer::TransitGraph;
+use crate::flatbuffer::Vec2;
+pub use crate::routing::granular_grid::GranularGrid;
 
 mod granular_grid;
 
@@ -75,6 +77,7 @@ fn get_coords_on_perimeter(center_row: isize, center_col: isize, dist: isize, ro
 /// * `centre` - A (y,x) co-ordinate to approximately search around
 /// * `cut_off` - The approximate maximum distance at which to stop searching
 /// * `rng` - Rng to pass to the choose() function for sampling
+#[inline]
 pub fn sample_nearby_from_grid<'a, R>(grid: &'a GranularGrid<usize>, centre: (f32, f32), cut_off: f32, rng: &mut R) -> Option<&'a usize>
     where R: Rng + ?Sized {
     let mut dist: u32 = 0;
