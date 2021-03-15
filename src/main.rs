@@ -8,6 +8,8 @@ use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
 use outbreak_sim::{agents, get_root_as_model, read_buffer, routing};
+use outbreak_sim::pois::create_containers;
+use outbreak_sim::disease::Uniform;
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 800;
@@ -42,6 +44,8 @@ fn main() -> Result<(), Error> {
 
     let workplace_indices = model.agents().workplace_index().unwrap().safe_slice();
     let workplace_positions = model.workplaces().pos();
+
+    let containers = create_containers::<Uniform>();
 
     let num_commuting_agents = agents.positions.iter().zip(workplace_indices.iter())
         .filter(|(&pos, &workplace_idx)| {

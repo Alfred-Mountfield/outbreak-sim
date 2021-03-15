@@ -23,6 +23,20 @@ impl DiseaseStatus {
         }
     }
 
+    #[inline]
+    pub fn infect(&mut self) {
+        debug_assert!(self.state == State::Susceptible);
+        self.state = State::Infectious;
+        self.infected_for = 0;
+    }
+
+    #[inline]
+    pub fn progress_infection(&mut self) {
+        debug_assert!(self.state == State::Infectious);
+        self.infected_for += 1;
+    }
+
+    #[inline]
     pub fn update(self_i: usize, disease_statuses: &mut Vec<DiseaseStatus>, positions: &[Vec2]) {
         if disease_statuses[self_i].state == State::Susceptible {
             for (i, coord) in positions.iter().enumerate() {
@@ -39,6 +53,6 @@ impl DiseaseStatus {
     }
 }
 
-pub fn construct_disease_status_array(num_agents: u64, rng: &mut StdRng) -> Vec<DiseaseStatus> {
+pub fn construct_disease_status_array(num_agents: u32, rng: &mut StdRng) -> Vec<DiseaseStatus> {
     (0..num_agents).map(|_| DiseaseStatus::new(rng)).collect()
 }

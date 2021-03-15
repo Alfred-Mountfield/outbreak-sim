@@ -9,8 +9,10 @@ use flatbuffers::Vector;
 pub mod position;
 
 pub struct Agents {
-    pub num_agents: u64,
+    pub num_agents: u32,
     pub positions: Vec<Vec2>,
+    // pub household_container: Vec<u32>,
+    // pub occupational_container: Vec<u32>, // workplace or school
     pub disease_statuses: Vec<DiseaseStatus>,
     rng: StdRng
 }
@@ -18,7 +20,8 @@ pub struct Agents {
 impl Agents {
     pub fn new(agent_households: Vector<u32>, household_positions: &[Vec2]) -> Agents {
         let mut rng = StdRng::seed_from_u64(32);
-        let num_agents = agent_households.len() as u64;
+        let num_agents = agent_households.len() as u32;
+
         let positions = agent_households.iter().filter_map(|idx| {
             household_positions.get(idx as usize)
         }).copied().collect();
