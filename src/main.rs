@@ -8,8 +8,8 @@ use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
 use outbreak_sim::{agents, get_root_as_model, read_buffer, routing};
-use outbreak_sim::pois::create_containers;
 use outbreak_sim::disease::Uniform;
+use outbreak_sim::pois::Containers;
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 800;
@@ -28,9 +28,9 @@ fn main() -> Result<(), Error> {
     // TODO Ensure that this is non-inclusive
     let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise
 
-    let agent_households = model.agents().household_index();
-    let household_positions = model.households().pos();
-    let agents = agents::Agents::new(agent_households, household_positions);
+    let mixing_strategy = Uniform { transmission_chance: 0.02 };
+    let containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), &mixing_strategy);
+    let agents = agents::Agents::new(&model, &containers);
 
     let transit_graph = model.transit_graph();
 
@@ -41,17 +41,16 @@ fn main() -> Result<(), Error> {
     fast_paths::save_to_disk(&fast_graph, &*("fast_paths/".to_string() + model_name + ".fp")).unwrap();
 
     let fast_graph = fast_paths::load_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap();
+    let workplace_indices = model.agents().workplace_index().safe_slice();
 
-    let workplace_indices = model.agents().workplace_index().unwrap().safe_slice();
-    let workplace_positions = model.workplaces().pos();
-
-    let containers = create_containers::<Uniform>();
-
-    let num_commuting_agents = agents.positions.iter().zip(workplace_indices.iter())
-        .filter(|(&pos, &workplace_idx)| {
-            return workplace_idx != u32::MAX
-    }).count();
+    let num_commuting_agents = workplace_indices.iter()
+        .filter(|&workplace_idx| {
+            return *workplace_idx != u32::MAX;
+        }).count();
     println!("{} Agents with a workplace", num_commuting_agents);
+
+    let mut timestep: u32 = 0;
+    let increment: u32 = 1;
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -100,8 +99,11 @@ fn main() -> Result<(), Error> {
             }
 
             // Update internal state and request a redraw
+            timestep += increment;
+
             // agents.update();
             world.update(&agents, &bounds);
+
             window.request_redraw();
         }
     });

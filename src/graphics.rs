@@ -50,22 +50,22 @@ impl WorldGrid {
             }
         }
         for i in 0..agents.num_agents {
-            let x = ((agents.positions[i as usize].x() / bounds.max().x()) * self.width as f32) as usize;
-            let y = ((((agents.positions[i as usize].y() / bounds.max().y()) - 1.0) * self.height as f32).abs()) as usize;
-            let idx = x + y * self.width;
-
-            let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
-            match agents.disease_statuses[i as usize].state {
-                disease::State::Susceptible => {
-                    num_people[0] = num_people[0].saturating_add(150);
-                },
-                disease::State::Infectious => {
-                    num_people[1] = num_people[1].saturating_add(150);
-                },
-                disease::State::Recovered => {
-                    num_people[1] = num_people[1].saturating_add(150);
-                }
-            }
+            // let x = ((agents.positions[i as usize].x() / bounds.max().x()) * self.width as f32) as usize;
+            // let y = ((((agents.positions[i as usize].y() / bounds.max().y()) - 1.0) * self.height as f32).abs()) as usize;
+            // let idx = x + y * self.width;
+            //
+            // let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
+            // match agents.disease_statuses[i as usize].state {
+            //     disease::State::Susceptible => {
+            //         num_people[0] = num_people[0].saturating_add(150);
+            //     },
+            //     disease::State::Infectious => {
+            //         num_people[1] = num_people[1].saturating_add(150);
+            //     },
+            //     disease::State::Recovered => {
+            //         num_people[1] = num_people[1].saturating_add(150);
+            //     }
+            // }
         }
         std::mem::swap(&mut self.scratch_cells, &mut self.cells);
     }

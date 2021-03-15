@@ -2,33 +2,45 @@ use rand::rngs::StdRng;
 use rand::SeedableRng;
 
 use crate::disease;
-use crate::disease::DiseaseStatus;
-use crate::flatbuffer::Vec2;
-use flatbuffers::Vector;
+use crate::disease::{DiseaseStatus, MixingStrategy};
+use crate::flatbuffer::{Model};
+use crate::pois::Containers;
 
 pub mod position;
 
 pub struct Agents {
     pub num_agents: u32,
-    pub positions: Vec<Vec2>,
-    // pub household_container: Vec<u32>,
-    // pub occupational_container: Vec<u32>, // workplace or school
+    pub household_container: Vec<u64>,
+    pub occupational_container: Vec<Option<u64>>, // workplace or school
     pub disease_statuses: Vec<DiseaseStatus>,
     rng: StdRng
 }
 
 impl Agents {
-    pub fn new(agent_households: Vector<u32>, household_positions: &[Vec2]) -> Agents {
-        let mut rng = StdRng::seed_from_u64(32);
-        let num_agents = agent_households.len() as u32;
+    pub fn new<M>(model: &Model, containers: &Containers<M>) -> Agents
+        where M: MixingStrategy
+    {
+        let household_indices = model.agents().household_index();
+        let workplace_indices = model.agents().workplace_index();
 
-        let positions = agent_households.iter().filter_map(|idx| {
-            household_positions.get(idx as usize)
-        }).copied().collect();
+        let mut rng = StdRng::seed_from_u64(32);
+        let num_agents = household_indices.len() as u32;
+
+        let household_container = household_indices.iter().map(|idx| {
+            containers.get_household_idx(idx)
+        }).collect();
+
+        let workplace_container = workplace_indices.iter().map(|idx| {
+            match idx {
+                u32::MAX => { None }
+                _ => { Some(containers.get_workplace_idx(idx)) }
+            }
+        }).collect();
 
         Agents {
             num_agents,
-            positions,
+            household_container,
+            occupational_container: workplace_container,
             disease_statuses: disease::construct_disease_status_array(num_agents, &mut rng),
             rng
         }
@@ -38,8 +50,8 @@ impl Agents {
         // for coord in self.positions.iter_mut() {
         //     coord.update(&mut self.rng)
         // }
-        for i in 0..self.disease_statuses.len() {
-            DiseaseStatus::update(i, &mut self.disease_statuses, &self.positions);
-        }
+        // for i in 0..self.disease_statuses.len() {
+        //     DiseaseStatus::update(i, &mut self.disease_statuses, &self.positions);
+        // }
     }
 }

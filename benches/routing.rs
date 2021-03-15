@@ -3,33 +3,32 @@ use fast_paths::FastGraph;
 use flatbuffers::Vector;
 use rayon::prelude::*;
 
-use outbreak_sim::{agents, Bounds, get_root_as_model, read_buffer, TransitGraph, Vec2};
+use outbreak_sim::{agents, get_root_as_model, Model, read_buffer, Vec2};
+use outbreak_sim::disease::{Uniform};
+use outbreak_sim::pois::Containers;
 use outbreak_sim::routing::{GranularGrid, nodes_to_granular_grid, sample_nearby_from_grid};
+use outbreak_sim::agents::Agents;
 
 struct InputData<'a> {
-    bounds: Bounds,
-    transit_graph: TransitGraph<'a>,
-    agent_positions: Vec<Vec2>,
-    agents_to_workplaces: Vector<'a, u32>,
-    workplace_positions: Vec<Vec2>,
-    transit_node_grid: GranularGrid<usize>,
+    model: Model<'a>,
+    agents_pos: Vec<Vec2>,
+    containers: Containers<'a, Uniform>,
+    transit_node_grid: GranularGrid<usize>
 }
 
-fn get_input_data(bytes: &Vec<u8>) -> InputData {
+fn get_input_data<'a>(bytes: &'a Vec<u8>, mixing_strategy: &'a Uniform) -> InputData<'a> {
     let model = get_root_as_model(bytes);
-    let bounds = model.bounds().to_owned();
-    let transit_graph = model.transit_graph().to_owned();
-    let agents = agents::Agents::new(model.agents().household_index(), model.households().pos());
-    let agents_to_workplaces = model.agents().workplace_index().unwrap().to_owned();
-    let workplace_positions = model.workplaces().pos().to_owned();
-    let transit_node_grid = nodes_to_granular_grid(&transit_graph, &bounds, 200);
+    let containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), &mixing_strategy);
+    let agents_pos = model.agents().household_index().iter().filter_map(|idx| {
+        model.households().pos().get(idx as usize)
+    }).copied().collect();
+
+    let transit_node_grid = nodes_to_granular_grid(&model.transit_graph(), &model.bounds(), 200);
 
     return InputData {
-        bounds,
-        transit_graph,
-        agent_positions: agents.positions,
-        agents_to_workplaces,
-        workplace_positions,
+        model,
+        agents_pos,
+        containers,
         transit_node_grid,
     };
 }
@@ -79,10 +78,11 @@ fn bench_build_granular_grid(c: &mut Criterion) {
     for &model_name in ["model_tower_hamlets", "model_greater_manchester"].iter() {
         for rows in [50u32, 100u32, 200u32].iter() {
             let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
-            let input = get_input_data(&bytes);
+            let mixing_strategy = Uniform { transmission_chance: 0.02 };
+            let input = get_input_data(&bytes, &mixing_strategy);
             group.bench_with_input(
                 BenchmarkId::new(model_name, rows), rows,
-                |b, rows| b.iter(|| nodes_to_granular_grid(&input.transit_graph, &input.bounds, *rows)),
+                |b, rows| b.iter(|| nodes_to_granular_grid(&input.model.transit_graph(), &input.model.bounds(), *rows)),
             );
         }
     }
@@ -94,20 +94,21 @@ fn bench_choose_nearby_nodes(c: &mut Criterion) {
 
     for &model_name in ["model_tower_hamlets", "model_greater_manchester"].iter() {
         let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
-        let input = get_input_data(&bytes);
+        let mixing_strategy = Uniform { transmission_chance: 0.02 };
+        let input = get_input_data(&bytes, &mixing_strategy);
         group.bench_function(
             BenchmarkId::new("sequential", model_name),
             |b| b.iter(|| choose_nearby_home_transit_node_sequential(
-                &input.agent_positions,
-                input.agents_to_workplaces.safe_slice(),
+                &input.agents_pos,
+                input.model.agents().workplace_index().safe_slice(),
                 &input.transit_node_grid)
             ),
         );
         group.bench_function(
             BenchmarkId::new("parallel", model_name),
             |b| b.iter(|| choose_nearby_home_transit_node_parallel(
-                &input.agent_positions,
-                input.agents_to_workplaces.safe_slice(),
+                &input.agents_pos,
+                input.model.agents().workplace_index().safe_slice(),
                 &input.transit_node_grid)
             ),
         );
@@ -121,14 +122,15 @@ fn bench_route_commutes(c: &mut Criterion) {
 
     for &model_name in ["model_tower_hamlets", "model_greater_manchester"].iter() {
         let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
-        let input = get_input_data(&bytes);
+        let mixing_strategy = Uniform { transmission_chance: 0.02 };
+        let input = get_input_data(&bytes, &mixing_strategy);
         let fast_graph = fast_paths::load_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap();
         group.bench_function(
             BenchmarkId::new("Commute Routing", model_name),
             |b| b.iter(|| choose_and_calc_workplace_commute(
-                &input.agent_positions,
-                &input.workplace_positions,
-                input.agents_to_workplaces.safe_slice(),
+                &input.agents_pos,
+                &input.model.workplaces().pos().to_owned(),
+                input.model.agents().workplace_index().safe_slice(),
                 &input.transit_node_grid,
                 &fast_graph)
             ),

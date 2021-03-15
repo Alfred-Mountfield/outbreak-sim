@@ -13,7 +13,7 @@ struct Bounds {
 table Agents {
   age:[uint8] (required);
   household_index:[uint32] (required);
-  workplace_index:[uint32];
+  workplace_index:[uint32] (required);
 }
 
 // TODO Parent Buildings for Lifts, Shared Gyms, etc.
