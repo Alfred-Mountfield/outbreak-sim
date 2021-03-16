@@ -5,20 +5,19 @@ use rayon::prelude::*;
 use rand::rngs::ThreadRng;
 
 /// A Spatial Area where agents spend time and mix
-pub struct Container<'a, M> where M: MixingStrategy {
-    pos: Vec2,
-    inhabitants: Vec<u32>,
-    mixing_strategy: &'a M,
+pub struct Container<M> where M: MixingStrategy {
+    pub pos: Vec2,
+    pub inhabitants: Vec<u32>,
+    mixing_strategy: M,
 }
 
-pub struct Containers<'a, M> where M: MixingStrategy {
-    elements: Vec<Container<'a, M>>,
-    mixing_strategies: Vec<&'a M>,
+pub struct Containers<M> where M: MixingStrategy {
+    elements: Vec<Container<M>>,
     num_households: u32,
     num_workplaces: u32,
 }
 
-impl<'a, M> Containers<'a, M> where M: MixingStrategy {
+impl<M> Containers<M> where M: MixingStrategy {
     pub fn get(&self, idx: u64) -> Option<&Container<M>> {
         self.elements.get(idx as usize)
     }
@@ -43,8 +42,14 @@ impl<'a, M> Containers<'a, M> where M: MixingStrategy {
         self.num_households as u64 + workplace_ind as u64
     }
 
+    #[inline]
     pub fn push_inhabitant(&mut self, container_idx: u64, agent_idx: u32) {
         self.elements.get_mut(container_idx as usize).unwrap().inhabitants.push(agent_idx);
+    }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.elements.len()
     }
 
     pub fn update(&self, agents: &mut Agents) {
@@ -88,20 +93,19 @@ impl<'a, M> Containers<'a, M> where M: MixingStrategy {
     }
 }
 
-impl<'a> Containers<'a, Uniform> {
-    // TODO Investigate using arc to avoid having to pass in mixing_strategy
-    pub fn new(household_positions: &[Vec2], workplace_positions: &[Vec2], mixing_strategy: &'a Uniform) -> Containers<'a, Uniform> {
+impl Containers<Uniform> {
+    // TODO Investigate options to avoid ownership and duplication of mixing strategy
+    pub fn new(household_positions: &[Vec2], workplace_positions: &[Vec2], mixing_strategy: Uniform) -> Self {
         let containers = household_positions.iter().chain(workplace_positions).map(|pos| {
             return Container {
                 pos: pos.clone(),
                 inhabitants: Vec::new(),
-                mixing_strategy,
+                mixing_strategy: mixing_strategy.clone(),
             };
         }).collect();
 
-        return Containers {
+        return Self {
             elements: containers,
-            mixing_strategies: vec![mixing_strategy],
             num_households: household_positions.len() as u32,
             num_workplaces: workplace_positions.len() as u32,
         };

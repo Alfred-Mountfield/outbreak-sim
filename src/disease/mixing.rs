@@ -9,6 +9,7 @@ pub trait MixingStrategy<T: Send + Sync = Self>: Send + Sync {
         where R: Rng + ?Sized;
 }
 
+#[derive(Clone)]
 pub struct Uniform {
     // Chance an infected person might infect someone else in their container per time step
     pub transmission_chance: f32
@@ -32,7 +33,7 @@ impl MixingStrategy for Uniform {
 
         let chance = self.transmission_chance * (num_infected as f32);
         for agent_status in statuses.iter_mut().filter(|status| status.state == State::Susceptible) {
-            if rng.gen::<f32>() > chance { agent_status.infect() };
+            if rng.gen::<f32>() < chance { agent_status.infect() };
         };
     }
 }

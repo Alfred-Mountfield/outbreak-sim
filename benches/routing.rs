@@ -12,13 +12,13 @@ use outbreak_sim::agents::Agents;
 struct InputData<'a> {
     model: Model<'a>,
     agents_pos: Vec<Vec2>,
-    containers: Containers<'a, Uniform>,
+    containers: Containers<Uniform>,
     transit_node_grid: GranularGrid<usize>
 }
 
-fn get_input_data<'a>(bytes: &'a Vec<u8>, mixing_strategy: &'a Uniform) -> InputData<'a> {
+fn get_input_data(bytes: &Vec<u8>, mixing_strategy: Uniform) -> InputData {
     let model = get_root_as_model(bytes);
-    let containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), &mixing_strategy);
+    let containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), mixing_strategy);
     let agents_pos = model.agents().household_index().iter().filter_map(|idx| {
         model.households().pos().get(idx as usize)
     }).copied().collect();
@@ -79,7 +79,7 @@ fn bench_build_granular_grid(c: &mut Criterion) {
         for rows in [50u32, 100u32, 200u32].iter() {
             let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
             let mixing_strategy = Uniform { transmission_chance: 0.02 };
-            let input = get_input_data(&bytes, &mixing_strategy);
+            let input = get_input_data(&bytes, mixing_strategy);
             group.bench_with_input(
                 BenchmarkId::new(model_name, rows), rows,
                 |b, rows| b.iter(|| nodes_to_granular_grid(&input.model.transit_graph(), &input.model.bounds(), *rows)),
@@ -95,7 +95,7 @@ fn bench_choose_nearby_nodes(c: &mut Criterion) {
     for &model_name in ["model_tower_hamlets", "model_greater_manchester"].iter() {
         let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
         let mixing_strategy = Uniform { transmission_chance: 0.02 };
-        let input = get_input_data(&bytes, &mixing_strategy);
+        let input = get_input_data(&bytes, mixing_strategy);
         group.bench_function(
             BenchmarkId::new("sequential", model_name),
             |b| b.iter(|| choose_nearby_home_transit_node_sequential(
@@ -123,7 +123,7 @@ fn bench_route_commutes(c: &mut Criterion) {
     for &model_name in ["model_tower_hamlets", "model_greater_manchester"].iter() {
         let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
         let mixing_strategy = Uniform { transmission_chance: 0.02 };
-        let input = get_input_data(&bytes, &mixing_strategy);
+        let input = get_input_data(&bytes, mixing_strategy);
         let fast_graph = fast_paths::load_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap();
         group.bench_function(
             BenchmarkId::new("Commute Routing", model_name),

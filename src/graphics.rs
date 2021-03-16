@@ -1,6 +1,9 @@
 // Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
-use outbreak_sim::{Bounds, disease};
+use outbreak_sim::{Bounds, disease, Sim};
 use outbreak_sim::agents::Agents;
+use outbreak_sim::pois::Containers;
+use outbreak_sim::disease::MixingStrategy;
+use std::cmp::min;
 
 #[derive(Clone, Copy, Debug, Default)]
 struct Cell {
@@ -41,7 +44,9 @@ impl WorldGrid {
         }
     }
 
-    pub fn update(&mut self, agents: &Agents, bounds: &Bounds) {
+    pub fn update<M>(&mut self, sim: &Sim<M>)
+        where M: MixingStrategy
+    {
         for y in 0..self.height {
             for x in 0..self.width {
                 let idx = x + y * self.width;
@@ -49,23 +54,27 @@ impl WorldGrid {
                 self.scratch_cells[idx].num_people_with_ds = [0, 0, 0];
             }
         }
-        for i in 0..agents.num_agents {
-            // let x = ((agents.positions[i as usize].x() / bounds.max().x()) * self.width as f32) as usize;
-            // let y = ((((agents.positions[i as usize].y() / bounds.max().y()) - 1.0) * self.height as f32).abs()) as usize;
-            // let idx = x + y * self.width;
-            //
-            // let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
-            // match agents.disease_statuses[i as usize].state {
-            //     disease::State::Susceptible => {
-            //         num_people[0] = num_people[0].saturating_add(150);
-            //     },
-            //     disease::State::Infectious => {
-            //         num_people[1] = num_people[1].saturating_add(150);
-            //     },
-            //     disease::State::Recovered => {
-            //         num_people[1] = num_people[1].saturating_add(150);
-            //     }
-            // }
+        for container_idx in 0..sim.containers.len() {
+            let container = sim.containers.get(container_idx as u64).unwrap();
+            let mut x = ((container.pos.x() / sim.bounds.max().x()) * self.width as f32) as usize;
+            let mut y = ((((container.pos.y() / sim.bounds.max().y()) - 1.0) * self.height as f32).abs()) as usize;
+            x = min(x, self.width - 1); y = min(y, self.height - 1);
+            let idx = x + y * self.width;
+
+            let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
+            for &agent_idx in container.inhabitants.iter() {
+                match sim.agents.disease_statuses[agent_idx as usize].state {
+                    disease::State::Susceptible => {
+                        num_people[0] = num_people[0].saturating_add(2);
+                    },
+                    disease::State::Infectious => {
+                        num_people[1] = num_people[1].saturating_add(2);
+                    },
+                    disease::State::Recovered => {
+                        num_people[1] = num_people[1].saturating_add(2);
+                    }
+                }
+            }
         }
         std::mem::swap(&mut self.scratch_cells, &mut self.cells);
     }

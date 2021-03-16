@@ -7,12 +7,12 @@ use outbreak_sim::pois::Containers;
 
 struct InputData<'a> {
     model: Model<'a>,
-    containers: Containers<'a, Uniform>,
+    containers: Containers<Uniform>,
 }
 
-fn get_input_data<'a>(bytes: &'a Vec<u8>, mixing_strategy: &'a Uniform) -> InputData<'a> {
+fn get_input_data(bytes: &Vec<u8>, mixing_strategy: Uniform) -> InputData {
     let model = get_root_as_model(bytes);
-    let containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), &mixing_strategy);
+    let containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), mixing_strategy);
 
     return InputData {
         model,
@@ -26,7 +26,7 @@ fn bench_infection_loop(c: &mut Criterion) {
     for &model_name in ["model_tower_hamlets", "model_greater_manchester", "model_london_se_commuter_ring"].iter() {
         let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
         let mixing_strategy = Uniform { transmission_chance: 0.02 };
-        let mut input = get_input_data(&bytes, &mixing_strategy);
+        let mut input = get_input_data(&bytes, mixing_strategy);
         let mut agents = agents::Agents::new(&input.model, &mut input.containers);
 
         group.bench_function(
