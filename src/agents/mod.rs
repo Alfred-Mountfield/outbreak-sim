@@ -17,8 +17,8 @@ pub struct Agents {
 }
 
 impl Agents {
-    pub fn new<M>(model: &Model, containers: &Containers<M>) -> Agents
-        where M: MixingStrategy
+    pub fn new<M>(model: &Model, containers: &mut Containers<M>) -> Agents
+        where M: MixingStrategy + Send + Sync
     {
         let household_indices = model.agents().household_index();
         let workplace_indices = model.agents().workplace_index();
@@ -26,8 +26,11 @@ impl Agents {
         let mut rng = StdRng::seed_from_u64(32);
         let num_agents = household_indices.len() as u32;
 
-        let household_container = household_indices.iter().map(|idx| {
-            containers.get_household_idx(idx)
+        let household_container = household_indices.iter().enumerate()
+            .map(|(agent_idx, household_idx)| {
+            let container_idx = containers.get_household_idx(household_idx);
+            containers.push_inhabitant(container_idx, agent_idx as u32);
+            return container_idx
         }).collect();
 
         let workplace_container = workplace_indices.iter().map(|idx| {
