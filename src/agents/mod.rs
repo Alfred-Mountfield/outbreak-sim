@@ -48,13 +48,4 @@ impl Agents {
             rng
         }
     }
-
-    pub fn update(&mut self) {
-        // for coord in self.positions.iter_mut() {
-        //     coord.update(&mut self.rng)
-        // }
-        // for i in 0..self.disease_statuses.len() {
-        //     DiseaseStatus::update(i, &mut self.disease_statuses, &self.positions);
-        // }
-    }
 }

@@ -8,23 +8,23 @@ use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 use outbreak_sim::disease::State;
 
-const SCREEN_WIDTH: u32 = 800;
-const SCREEN_HEIGHT: u32 = 800;
-const WORLD_WIDTH: u32 = 600;
-const WORLD_HEIGHT: u32 = 600;
+const SCREEN_WIDTH: u32 = 1000;
+const SCREEN_HEIGHT: u32 = 1000;
+const WORLD_WIDTH: u32 = 800;
+const WORLD_HEIGHT: u32 = 800;
 
 mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    // let model_name = "model_tower_hamlets";
-    let model_name = "model_greater_manchester";
+    let model_name = "model_tower_hamlets";
+    // let model_name = "model_greater_manchester";
     // let model_name = "model_london_se_commuter_ring";
 
     let mut sim = outbreak_sim::Sim::new(model_name);
 
     let mut timestep: u32 = 0;
-    let increment: u32 = 1;
+    let increment: u32 = 5;
     
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -77,13 +77,19 @@ fn main() -> Result<(), Error> {
                 println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
             }
 
+            // let mut time = Instant::now();
+
             // Update internal state and request a redraw
             timestep += increment;
             for _ in 0..increment {
                 sim.update();
             }
+            // println!("Took {:.2}s for {} steps", time.elapsed().as_secs_f64(), increment);
+            // time = Instant::now();
+
             world.update(&sim);
 
+            // println!("Draw logic took {:.2}s", time.elapsed().as_secs_f64());
 
             window.request_redraw();
         }

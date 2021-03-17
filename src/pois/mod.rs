@@ -17,6 +17,31 @@ pub struct Containers<M> where M: MixingStrategy {
     num_workplaces: u32,
 }
 
+pub struct Reuse<T: 'static> {
+    v: Vec<&'static mut T>,
+}
+
+pub unsafe fn cast_vec<'a, 'b, T>(mut v: Vec<&'a mut T>) -> Vec<&'b mut T> {
+    let len = v.len();
+    let cap = v.capacity();
+    let ptr: *mut &'a mut T = v.as_mut_ptr();
+    let ptr: *mut &'b mut T = ptr as *mut () as *mut &'b mut T;
+    std::mem::forget(v);
+    Vec::from_raw_parts(ptr, len, cap)
+}
+
+impl<T: 'static> Reuse<T> {
+    pub fn take<'a>(&mut self) -> Vec<&'a mut T> {
+        let v = std::mem::replace(&mut self.v, Vec::new());
+        unsafe { cast_vec(v) }
+    }
+
+    pub fn put(&mut self, mut v: Vec<&mut T>) {
+        v.clear();
+        self.v = unsafe { cast_vec(v) };
+    }
+}
+
 impl<M> Containers<M> where M: MixingStrategy {
     pub fn get(&self, idx: u64) -> Option<&Container<M>> {
         self.elements.get(idx as usize)
@@ -85,11 +110,11 @@ impl<M> Containers<M> where M: MixingStrategy {
             container_to_disease_statuses.push(left);
         }
 
-        container_to_disease_statuses.into_par_iter().enumerate().for_each(|(idx, disease_statuses)| {
-            let mut rng = ThreadRng::default();
-
-            self.elements[idx].mixing_strategy.handle_transmission(disease_statuses, &mut rng)
-        });
+        container_to_disease_statuses.into_par_iter().enumerate().for_each_init(
+            || (ThreadRng::default(), Reuse { v: Vec::new() }),
+            |(rng, tmp), (idx, disease_statuses)| {
+                self.elements[idx].mixing_strategy.handle_transmission(disease_statuses, rng, tmp);
+            });
     }
 }
 

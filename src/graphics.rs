@@ -68,7 +68,7 @@ impl WorldGrid {
                         num_people[0] = num_people[0].saturating_add(2);
                     },
                     disease::State::Infectious => {
-                        num_people[1] = num_people[1].saturating_add(2);
+                        num_people[1] = num_people[1].saturating_add(20);
                     },
                     disease::State::Recovered => {
                         num_people[1] = num_people[1].saturating_add(2);
