@@ -25,7 +25,7 @@ fn main() -> Result<(), Error> {
 
     let mut timestep: u32 = 0;
     let increment: u32 = 5;
-    
+
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
     let window = {
@@ -37,14 +37,14 @@ fn main() -> Result<(), Error> {
             .build(&event_loop)
             .unwrap()
     };
-    
+
     let mut pixels = {
         let window_size = window.inner_size();
         let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
         Pixels::new(WORLD_WIDTH as u32, WORLD_WIDTH as u32, surface_texture)?
     };
     let mut world = graphics::WorldGrid::new_empty(WORLD_HEIGHT as usize, WORLD_WIDTH as usize);
-    
+
     event_loop.run(move |event, _, control_flow| {
         // Draw the current frame
         if let Event::RedrawRequested(_) = event {
@@ -58,7 +58,7 @@ fn main() -> Result<(), Error> {
                 return;
             }
         }
-    
+
         // Handle input events
         if input.update(&event) {
             // Close events
@@ -66,7 +66,7 @@ fn main() -> Result<(), Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-    
+
             // Resize the window
             if let Some(size) = input.window_resized() {
                 pixels.resize(size.width, size.height);

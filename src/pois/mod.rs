@@ -1,8 +1,13 @@
-use crate::flatbuffer::Vec2;
-use crate::disease::{MixingStrategy, Uniform, DiseaseStatus};
-use crate::agents::Agents;
-use rayon::prelude::*;
+use std::collections::BTreeSet;
+use std::iter::FromIterator;
+
 use rand::rngs::ThreadRng;
+use rayon::prelude::*;
+
+use crate::agents::Agents;
+use crate::disease::{DiseaseStatus, MixingStrategy, Uniform};
+use crate::flatbuffer::Vec2;
+use std::sync::Mutex;
 
 /// A Spatial Area where agents spend time and mix
 pub struct Container<M> where M: MixingStrategy {
@@ -16,6 +21,10 @@ pub struct Containers<M> where M: MixingStrategy {
     num_households: u32,
     num_workplaces: u32,
 }
+
+struct DiseaseStatusPointer(*mut DiseaseStatus);
+unsafe impl Send for DiseaseStatusPointer {}
+unsafe impl Sync for DiseaseStatusPointer {}
 
 impl<M> Containers<M> where M: MixingStrategy {
     pub fn get(&self, idx: u64) -> Option<&Container<M>> {
@@ -53,43 +62,23 @@ impl<M> Containers<M> where M: MixingStrategy {
     }
 
     pub fn update(&self, agents: &mut Agents) {
-        // TODO investigate https://stackoverflow.com/questions/55939552/simultaneous-mutable-access-to-arbitrary-indices-of-a-large-vector-that-are-guar
-        let mut_refs = agents.disease_statuses.iter_mut()
-            .collect::<Vec<&mut DiseaseStatus>>();
+        let start = DiseaseStatusPointer(agents.disease_statuses.as_mut_ptr());
+        let mut unique_indices = Mutex::new(BTreeSet::new());
 
-        let mut agents_to_containers: Vec<u32> = vec![u32::MAX; mut_refs.len()];
-        self.elements.iter().enumerate().for_each(|(container_idx, container)| {
-            container.inhabitants.iter()
-                .for_each(|&agent_idx| agents_to_containers[agent_idx as usize] = (container_idx as u32))
-        });
+        self.elements.par_iter().for_each(|container| {
+            let mut mut_refs = container.inhabitants.iter().map(|&idx| {
+                debug_assert!({
+                    let mut unique_indices = unique_indices.lock().unwrap();
+                    unique_indices.insert(idx)
+                });
+                // Inspired by (taken from) https://stackoverflow.com/a/56009251/14687716
+                // As the reasoning in the post explains, this relies on ensuring indices are unique and retrieving the
+                // raw pointer avoids aliasing
+                unsafe { &mut *start.0.add(idx as usize) }
+            }).collect::<Vec<&mut DiseaseStatus>>();
 
-        // par_sort_unstable_by
-        let mut sorted_disease_statuses: Vec<&mut DiseaseStatus> = {
-            let mut enumerated_statuses: Vec<(usize, &mut DiseaseStatus)> = (0..mut_refs.len()).zip(mut_refs.into_iter()).collect();
-            enumerated_statuses.par_sort_unstable_by(|a, b| {
-                let a_idx = agents_to_containers.get(a.0).unwrap_or(&u32::MAX);
-                let b_idx = agents_to_containers.get(b.0).unwrap_or(&u32::MAX);
-                Ord::cmp(a_idx, b_idx)
-            });
-            enumerated_statuses.into_par_iter().map(|(idx, status)| status).collect()
-        };
-
-        let mut tail = sorted_disease_statuses.as_mut_slice();
-
-        let mut container_to_disease_statuses: Vec<&mut [&mut DiseaseStatus]> = Vec::with_capacity(self.elements.len());
-
-        for container in self.elements.iter() {
-            let idx = container.inhabitants.len();
-            let (left, right) = tail.split_at_mut(idx);
-            tail = right;
-            container_to_disease_statuses.push(left);
-        }
-
-        container_to_disease_statuses.into_par_iter().enumerate().for_each_init(
-            || ThreadRng::default(),
-            |rng, (idx, disease_statuses)| {
-                self.elements[idx].mixing_strategy.handle_transmission(disease_statuses, rng);
-            });
+            container.mixing_strategy.handle_transmission(mut_refs.as_mut_slice(), &mut ThreadRng::default());
+        })
     }
 }
 

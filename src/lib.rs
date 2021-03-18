@@ -1,3 +1,16 @@
+use std::time::Instant;
+
+pub use flatbuffer::Bounds;
+pub use flatbuffer::get_root_as_model;
+pub use flatbuffer::Model;
+pub use flatbuffer::read_buffer;
+pub use flatbuffer::TransitGraph;
+pub use flatbuffer::Vec2;
+
+use crate::agents::Agents;
+use crate::disease::{MixingStrategy, Uniform};
+use crate::pois::Containers;
+
 // TODO Revisit public access
 pub mod agents;
 pub mod pois;
@@ -5,17 +18,6 @@ pub mod disease;
 pub mod shared;
 pub mod routing;
 mod flatbuffer;
-
-pub use flatbuffer::Model;
-pub use flatbuffer::read_buffer;
-pub use flatbuffer::get_root_as_model;
-pub use flatbuffer::Bounds;
-pub use flatbuffer::Vec2;
-pub use flatbuffer::TransitGraph;
-use crate::disease::{Uniform, MixingStrategy};
-use std::time::Instant;
-use crate::pois::Containers;
-use crate::agents::Agents;
 
 pub struct Sim<M>
     where M: MixingStrategy

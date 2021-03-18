@@ -29,6 +29,7 @@ impl MixingStrategy for Uniform {
     {
         let mut num_infected = 0;
 
+        // TODO revisit keeping track of susceptible in this loop, speed was tested for only households which are smaller than workplaces
         for status in statuses.iter_mut() {
             if status.state == State::Infectious {
                 num_infected += 1;

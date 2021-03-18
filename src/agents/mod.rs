@@ -5,15 +5,17 @@ use crate::disease;
 use crate::disease::{DiseaseStatus, MixingStrategy};
 use crate::flatbuffer::{Model};
 use crate::pois::Containers;
+use nonmax::NonMaxU64;
 
 pub mod position;
 
 pub struct Agents {
     pub num_agents: u32,
     pub household_container: Vec<u64>,
-    pub occupational_container: Vec<Option<u64>>, // workplace or school
+    pub occupational_container: Vec<Option<NonMaxU64>>,
+    // workplace or school
     pub disease_statuses: Vec<DiseaseStatus>,
-    rng: StdRng
+    rng: StdRng,
 }
 
 impl Agents {
@@ -28,15 +30,15 @@ impl Agents {
 
         let household_container = household_indices.iter().enumerate()
             .map(|(agent_idx, household_idx)| {
-            let container_idx = containers.get_household_idx(household_idx);
-            containers.push_inhabitant(container_idx, agent_idx as u32);
-            return container_idx
-        }).collect();
+                let container_idx = containers.get_household_idx(household_idx);
+                containers.push_inhabitant(container_idx, agent_idx as u32);
+                return container_idx;
+            }).collect();
 
         let workplace_container = workplace_indices.iter().map(|idx| {
             match idx {
                 u32::MAX => { None }
-                _ => { Some(containers.get_workplace_idx(idx)) }
+                _ => NonMaxU64::new(containers.get_workplace_idx(idx))
             }
         }).collect();
 
@@ -45,7 +47,7 @@ impl Agents {
             household_container,
             occupational_container: workplace_container,
             disease_statuses: disease::construct_disease_status_array(num_agents, &mut rng),
-            rng
+            rng,
         }
     }
 }
