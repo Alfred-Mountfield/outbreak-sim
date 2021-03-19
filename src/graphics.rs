@@ -44,9 +44,7 @@ impl WorldGrid {
         }
     }
 
-    pub fn update<M>(&mut self, sim: &Sim<M>)
-        where M: MixingStrategy
-    {
+    pub fn update<M: MixingStrategy>(&mut self, sim: &Sim<M>) {
         for y in 0..self.height {
             for x in 0..self.width {
                 let idx = x + y * self.width;

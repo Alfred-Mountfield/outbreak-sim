@@ -21,7 +21,7 @@ fn main() -> Result<(), Error> {
     // let model_name = "model_greater_manchester";
     // let model_name = "model_london_se_commuter_ring";
 
-    let mut sim = outbreak_sim::Sim::new(model_name);
+    let mut sim = outbreak_sim::Sim::new(model_name, true);
 
     let mut timestep: u32 = 0;
     let increment: u32 = 5;

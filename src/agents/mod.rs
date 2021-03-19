@@ -7,7 +7,6 @@ use crate::flatbuffer::{Model};
 use crate::pois::Containers;
 use nonmax::NonMaxU64;
 
-pub mod position;
 
 pub struct Agents {
     pub num_agents: u32,

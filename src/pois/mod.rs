@@ -10,13 +10,13 @@ use crate::flatbuffer::Vec2;
 use std::sync::Mutex;
 
 /// A Spatial Area where agents spend time and mix
-pub struct Container<M> where M: MixingStrategy {
+pub struct Container<M: MixingStrategy> {
     pub pos: Vec2,
     pub inhabitants: Vec<u32>,
     mixing_strategy: M,
 }
 
-pub struct Containers<M> where M: MixingStrategy {
+pub struct Containers<M: MixingStrategy> {
     elements: Vec<Container<M>>,
     num_households: u32,
     num_workplaces: u32,
@@ -26,7 +26,7 @@ struct DiseaseStatusPointer(*mut DiseaseStatus);
 unsafe impl Send for DiseaseStatusPointer {}
 unsafe impl Sync for DiseaseStatusPointer {}
 
-impl<M> Containers<M> where M: MixingStrategy {
+impl<M: MixingStrategy> Containers<M> {
     pub fn get(&self, idx: u64) -> Option<&Container<M>> {
         self.elements.get(idx as usize)
     }
@@ -83,7 +83,7 @@ impl<M> Containers<M> where M: MixingStrategy {
 }
 
 impl Containers<Uniform> {
-    // TODO Investigate options to avoid ownership and duplication of mixing strategy
+    // TODO Investigate options to avoid ownership and duplication of mixing strategy, maybe use an enum or callback for mixing_strategy type to avoid needing lifetime params
     pub fn new(household_positions: &[Vec2], workplace_positions: &[Vec2], mixing_strategy: Uniform) -> Self {
         let containers = household_positions.iter().chain(workplace_positions).map(|pos| {
             return Container {
