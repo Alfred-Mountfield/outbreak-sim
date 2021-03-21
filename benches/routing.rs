@@ -83,7 +83,7 @@ fn distance_f32(p1: (f32, f32), p2: (f32, f32)) -> f32 {
 
 #[inline]
 fn calc_workplace_direct_commute_1<M: MixingStrategy>(sim: &Sim<M>) {
-    sim.agents.occupational_container.iter()
+    sim.agents.occupational_container.par_iter()
         .enumerate()
         .filter(|(_, work_container_idx)| work_container_idx.is_some())
         .map(|(agent_idx, work_container_idx)| {
@@ -103,7 +103,7 @@ fn calc_workplace_direct_commute_1<M: MixingStrategy>(sim: &Sim<M>) {
 
 #[inline]
 fn calc_workplace_direct_commute_2<M: MixingStrategy>(sim: &Sim<M>) {
-    sim.agents.household_container.iter().zip(sim.agents.occupational_container.iter())
+    sim.agents.household_container.par_iter().zip(sim.agents.occupational_container.par_iter())
         .filter(|(house_container_idx, work_container_idx)| work_container_idx.is_some())
         .map(|(agent_idx, work_container_idx)| {
             (

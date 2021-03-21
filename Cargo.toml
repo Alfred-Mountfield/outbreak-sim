@@ -30,3 +30,7 @@ harness = false
 [[bench]]
 name = "iterations"
 harness = false
+
+[[bench]]
+name = "activity_queue"
+harness = false
