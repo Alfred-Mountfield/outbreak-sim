@@ -8,8 +8,17 @@ use crate::Bounds;
 use crate::flatbuffer::TransitGraph;
 use crate::flatbuffer::Vec2;
 pub use crate::routing::granular_grid::GranularGrid;
+use std::time::Instant;
 
 mod granular_grid;
+
+pub fn get_fast_graph(transit_graph: TransitGraph) -> FastGraph {
+    println!("Creating Contraction Hierarchies");
+    let now = Instant::now();
+    let fast_graph = preprocess_graph(&transit_graph);
+    println!("{:.6}s", now.elapsed().as_secs_f64());
+    fast_graph
+}
 
 /// Creates a fast_paths Graph from the FlatBuffers TransitGraph edges data
 pub fn preprocess_graph(transit_graph: &TransitGraph) -> FastGraph {
