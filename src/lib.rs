@@ -20,6 +20,8 @@ pub mod shared;
 pub mod routing;
 mod flatbuffer;
 
+// TODO static Cell<> for global params
+
 pub struct Sim<M: MixingStrategy> {
     pub agents: Agents,
     pub containers: Containers<M>,
@@ -70,6 +72,6 @@ impl Sim<Uniform> {
     }
 
     pub fn update(&mut self) {
-        self.containers.update(&mut self.agents);
+        self.containers.update(&mut self.agents); // Handle transmission and disease status updates
     }
 }

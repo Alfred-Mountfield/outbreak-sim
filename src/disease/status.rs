@@ -34,6 +34,11 @@ impl DiseaseStatus {
     pub fn progress_infection(&mut self) {
         debug_assert!(self.state == State::Infectious);
         self.infected_for += 1;
+
+        // TODO Update to not be constant
+        if self.infected_for > 12 {
+
+        }
     }
 
     #[inline]

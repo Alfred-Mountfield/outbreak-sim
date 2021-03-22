@@ -21,10 +21,10 @@ fn main() -> Result<(), Error> {
     // let model_name = "model_greater_manchester";
     // let model_name = "model_london_se_commuter_ring";
 
-    let mut sim = outbreak_sim::Sim::new(model_name, true);
-
     let mut timestep: u32 = 0;
-    let increment: u32 = 5;
+    let iterations_per_render: u32 = 5;
+
+    let mut sim = outbreak_sim::Sim::new(model_name, true);
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -80,8 +80,8 @@ fn main() -> Result<(), Error> {
             // let mut time = Instant::now();
 
             // Update internal state and request a redraw
-            timestep += increment;
-            for _ in 0..increment {
+            timestep += iterations_per_render;
+            for _ in 0..iterations_per_render {
                 sim.update();
             }
             // println!("Took {:.2}s for {} steps", time.elapsed().as_secs_f64(), increment);
