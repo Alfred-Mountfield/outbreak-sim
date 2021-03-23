@@ -77,8 +77,8 @@ fn activity_loop(mut activities_at_timestep: VecDeque<Vec<Activity>>, mut agents
 // fn activity_loop_parallel(activities_at_timestep: DashMap<u16, Vec<Activity>>, mut agents_to_activities: Vec<Vec<Activity>>) {
 //     let agents_to_activities = Mutex::new(agents_to_activities);
 //     for time_step in 0..(DAYS * TIME_STEPS_PER_DAY) {
-//         if let Some(mut activities) = activities_at_timestep.remove(&time_step) {
-//             activities.1.par_drain(..).for_each(|activity| {
+//         if let Some(mut events) = activities_at_timestep.remove(&time_step) {
+//             events.1.par_drain(..).for_each(|activity| {
 //                 if let Some(next_activity) = { let x = agents_to_activities.lock().unwrap(); x }[activity.agent_idx as usize].pop() {
 //                     activities_at_timestep.entry(next_activity.end_timestep)
 //                         .or_insert(vec![])

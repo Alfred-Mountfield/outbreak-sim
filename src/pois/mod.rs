@@ -52,6 +52,14 @@ impl<M: MixingStrategy> Containers<M> {
     }
 
     #[inline]
+    pub fn remove_inhabitant(&mut self, container_idx: u64, agent_idx: u32) {
+        let container = self.elements.get_mut(container_idx as usize).unwrap();
+        container.inhabitants.swap_remove(
+            container.inhabitants.iter().position(|idx| *idx == agent_idx).expect("Couldn't find given agent index in container")
+        );
+    }
+
+    #[inline]
     pub fn push_inhabitant(&mut self, container_idx: u64, agent_idx: u32) {
         self.elements.get_mut(container_idx as usize).unwrap().inhabitants.push(agent_idx);
     }

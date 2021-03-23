@@ -1,5 +1,7 @@
 use std::time::Instant;
 
+use fast_paths::FastGraph;
+
 pub use flatbuffer::Bounds;
 pub use flatbuffer::get_root_as_model;
 pub use flatbuffer::Model;
@@ -7,11 +9,11 @@ pub use flatbuffer::read_buffer;
 pub use flatbuffer::TransitGraph;
 pub use flatbuffer::Vec2;
 
+use crate::events::Events;
 use crate::agents::Agents;
 use crate::disease::{MixingStrategy, Uniform};
 use crate::pois::Containers;
-use fast_paths::FastGraph;
-use crate::routing::get_fast_graph;
+use routing::transit::get_fast_graph;
 use crate::shared::set_up_global_params;
 
 // TODO Revisit public access
@@ -20,16 +22,17 @@ pub mod pois;
 pub mod disease;
 pub mod shared;
 pub mod routing;
-pub mod activities;
+pub mod events;
 mod flatbuffer;
 
 // TODO static Cell<> for global params
 
 pub struct Sim<M: MixingStrategy> {
     pub agents: Agents,
+    pub activities: Events,
     pub containers: Containers<M>,
     pub bounds: Bounds,
-    pub fast_graph: FastGraph
+    pub fast_graph: FastGraph,
 }
 
 impl Sim<Uniform> {
@@ -43,7 +46,8 @@ impl Sim<Uniform> {
         let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise
 
         let mut containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), mixing_strategy);
-        let agents = agents::Agents::new(&model, &mut containers);
+        let mut agents = agents::Agents::new(&model, &mut containers);
+        let activities = events::Events::new(&mut agents);
 
         let fast_graph = match load_fast_graph_from_disk {
             true => {
@@ -65,13 +69,15 @@ impl Sim<Uniform> {
 
         Self {
             agents,
+            activities,
             containers,
             bounds,
-            fast_graph
+            fast_graph,
         }
     }
 
     pub fn update(&mut self) {
+        // self.activities.update();
         self.containers.update(&mut self.agents); // Handle transmission and disease status updates
     }
 }
