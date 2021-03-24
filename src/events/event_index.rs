@@ -1,20 +1,22 @@
 use std::collections::VecDeque;
 
-use crate::events::get_next_event;
-use crate::events::event::Event;
+use crate::events::event::{Event};
+use crate::disease::MixingStrategy;
+use crate::pois::Containers;
+use crate::agents::Agents;
 
 pub type EventIndex = VecDeque<Vec<Event>>;
 
-trait Update {
-    fn update(&mut self, time_step: u16);
+pub trait Update {
+    fn update<M>(&mut self, time_step: u32, agents: &Agents, containers: &mut Containers<M>) where M: MixingStrategy;
 }
 
 impl Update for EventIndex {
-    fn update(&mut self, time_step: u16) {
+    fn update<M>(&mut self, time_step: u32, agents: &Agents, containers: &mut Containers<M>) where M: MixingStrategy {
         if let Some(mut events) = self.pop_front() {
             events.drain(..).for_each(|event| {
-                if let Some(next_event) = get_next_event(event.agent_idx, time_step) {
-                    self.get_mut_or_grow((next_event.end_timestep - time_step) as usize).unwrap().push(next_event);
+                if let Some(next_event) = event.handle(agents, containers) {
+                    self.get_mut_or_grow((next_event.end_time_step - time_step) as usize).unwrap().push(next_event);
                 }
             });
         }

@@ -1,5 +1,3 @@
-use std::time::Instant;
-
 use fast_paths::FastGraph;
 
 pub use flatbuffer::Bounds;
@@ -29,7 +27,7 @@ mod flatbuffer;
 
 pub struct Sim<M: MixingStrategy> {
     pub agents: Agents,
-    pub activities: Events,
+    pub events: Events,
     pub containers: Containers<M>,
     pub bounds: Bounds,
     pub fast_graph: FastGraph,
@@ -47,7 +45,7 @@ impl Sim<Uniform> {
 
         let mut containers = Containers::<Uniform>::new(model.households().pos(), model.workplaces().pos(), mixing_strategy);
         let mut agents = agents::Agents::new(&model, &mut containers);
-        let activities = events::Events::new(&mut agents);
+        let events = events::Events::new(&mut agents);
 
         let fast_graph = match load_fast_graph_from_disk {
             true => {
@@ -69,15 +67,15 @@ impl Sim<Uniform> {
 
         Self {
             agents,
-            activities,
+            events,
             containers,
             bounds,
             fast_graph,
         }
     }
 
-    pub fn update(&mut self) {
-        // self.activities.update();
+    pub fn update(&mut self, time_step: u32) {
+        self.events.update(time_step, &self.agents, &mut self.containers);
         self.containers.update(&mut self.agents); // Handle transmission and disease status updates
     }
 }

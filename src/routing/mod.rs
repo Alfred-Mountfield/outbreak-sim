@@ -6,6 +6,10 @@ use rand::seq::{IteratorRandom, SliceRandom};
 use crate::Bounds;
 use crate::flatbuffer::TransitGraph;
 pub use crate::routing::granular_grid::GranularGrid;
+use nonmax::NonMaxU64;
+use crate::pois::Containers;
+use crate::disease::MixingStrategy;
+use crate::shared::{WALKING_SPEED, CYCLING_SPEED, DRIVING_SPEED};
 
 pub mod transit;
 mod granular_grid;
@@ -13,7 +17,35 @@ mod granular_grid;
 #[derive(Debug, Copy, Clone)]
 pub enum RoutingType {
     Transit,
-    Direct
+    Direct(DirectRoutingType),
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum DirectRoutingType {
+    Walking,
+    Cycling,
+    Driving,
+}
+
+#[inline]
+pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type: DirectRoutingType, from_container_idx: NonMaxU64, to_container_idx: NonMaxU64) -> u32
+    where M: MixingStrategy
+{
+    let p1 = containers.get(from_container_idx.get()).unwrap().pos;
+    let p2 = containers.get(to_container_idx.get()).unwrap().pos;
+    let dist = ((p2.x() - p1.x()).powi(2) + (p2.y() - p1.y()).powi(2)).sqrt();
+
+    (dist * match routing_type {
+        DirectRoutingType::Walking => {
+            WALKING_SPEED
+        }
+        DirectRoutingType::Cycling => {
+            CYCLING_SPEED
+        }
+        DirectRoutingType::Driving => {
+            DRIVING_SPEED
+        }
+    }) as u32
 }
 
 /// Creates a GranularGrid of TransitNodes
@@ -39,22 +71,22 @@ fn get_coords_on_perimeter(center_row: isize, center_col: isize, dist: isize, ro
     let mut coords = Vec::with_capacity((8 * dist) as usize);
 
     if center_row >= dist { // Top line
-        for col in (max((center_col - dist), 0))..(min((center_col + dist + 1), cols as isize)) { // left to right
+        for col in (max(center_col - dist, 0))..(min(center_col + dist + 1, cols as isize)) { // left to right
             coords.push(((center_row - dist) as u32, col as u32));
         }
     }
     if center_col + dist < cols as isize { // Right Line
-        for row in (max((center_row - dist + 1), 0))..(min((center_row + dist), rows as isize)) { // up to down
+        for row in (max(center_row - dist + 1, 0))..(min(center_row + dist, rows as isize)) { // up to down
             coords.push((row as u32, (center_col + dist) as u32));
         }
     }
     if center_row + dist < rows as isize { // Bottom Line
-        for col in (max((center_col - dist + 1), 0))..(min((center_col + dist + 1), cols as isize)) { // left to right
+        for col in (max(center_col - dist + 1, 0))..(min(center_col + dist + 1, cols as isize)) { // left to right
             coords.push(((center_row + dist) as u32, col as u32));
         }
     }
     if center_col >= dist { // Left Line
-        for row in (max((center_row - dist + 1), 0))..(min((center_row + dist + 1), rows as isize)) { // up to down
+        for row in (max(center_row - dist + 1, 0))..(min(center_row + dist + 1, rows as isize)) { // up to down
             coords.push((row as u32, (center_col - dist) as u32));
         }
     }

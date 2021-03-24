@@ -80,9 +80,9 @@ fn main() -> Result<(), Error> {
             // let mut time = Instant::now();
 
             // Update internal state and request a redraw
-            timestep += iterations_per_render;
             for _ in 0..iterations_per_render {
-                sim.update();
+                sim.update(timestep);
+                timestep += 1;
             }
             // println!("Took {:.2}s for {} steps", time.elapsed().as_secs_f64(), increment);
             // time = Instant::now();

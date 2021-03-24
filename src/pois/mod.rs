@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 use std::iter::FromIterator;
+use std::sync::Mutex;
 
 use rand::rngs::ThreadRng;
 use rayon::prelude::*;
@@ -7,7 +8,6 @@ use rayon::prelude::*;
 use crate::agents::Agents;
 use crate::disease::{DiseaseStatus, MixingStrategy, Uniform};
 use crate::flatbuffer::Vec2;
-use std::sync::Mutex;
 
 /// A Spatial Area where agents spend time and mix
 pub struct Container<M: MixingStrategy> {
@@ -23,7 +23,9 @@ pub struct Containers<M: MixingStrategy> {
 }
 
 struct DiseaseStatusPointer(*mut DiseaseStatus);
+
 unsafe impl Send for DiseaseStatusPointer {}
+
 unsafe impl Sync for DiseaseStatusPointer {}
 
 impl<M: MixingStrategy> Containers<M> {
@@ -69,6 +71,9 @@ impl<M: MixingStrategy> Containers<M> {
         self.elements.len()
     }
 
+    #[inline]
+    pub fn is_empty(&self) -> bool { self.elements.is_empty() }
+
     pub fn update(&self, agents: &mut Agents) {
         let start = DiseaseStatusPointer(agents.disease_statuses.as_mut_ptr());
         let mut unique_indices = Mutex::new(BTreeSet::new());
@@ -94,18 +99,18 @@ impl Containers<Uniform> {
     // TODO Investigate options to avoid ownership and duplication of mixing strategy, maybe use an enum or callback for mixing_strategy type to avoid needing lifetime params
     pub fn new(household_positions: &[Vec2], workplace_positions: &[Vec2], mixing_strategy: Uniform) -> Self {
         let containers = household_positions.iter().chain(workplace_positions).map(|pos| {
-            return Container {
+            Container {
                 pos: pos.clone(),
                 inhabitants: Vec::new(),
                 mixing_strategy: mixing_strategy.clone(),
-            };
+            }
         }).collect();
 
-        return Self {
+        Self {
             elements: containers,
             num_households: household_positions.len() as u32,
             num_workplaces: workplace_positions.len() as u32,
-        };
+        }
     }
 }
 

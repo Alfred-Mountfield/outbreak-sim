@@ -27,19 +27,19 @@ impl Agents {
         let mut rng = StdRng::seed_from_u64(32);
         let num_agents = household_indices.len() as u32;
 
-        let household_container = household_indices.iter().enumerate()
-            .map(|(agent_idx, household_idx)| {
-                let container_idx = containers.get_household_idx(household_idx);
-                containers.push_inhabitant(container_idx, agent_idx as u32);
-                return container_idx;
-            }).collect();
-
-        let workplace_container = workplace_indices.iter().map(|idx| {
-            match idx {
-                u32::MAX => { None }
-                _ => NonMaxU64::new(containers.get_workplace_idx(idx))
-            }
-        }).collect();
+        let (household_container, workplace_container) = household_indices.iter().zip(workplace_indices.iter())
+            .enumerate().map(|(agent_idx, (household_idx, workplace_idx))| {
+            let household_container_idx = containers.get_household_idx(household_idx);
+            let workplace_container_idx = match workplace_idx {
+                u32::MAX => {
+                    // TODO Update this, super hacky right now as people without workplaces don't have Event schedules so need to manually be placed in a container
+                    containers.push_inhabitant(household_container_idx, agent_idx as u32);
+                    None
+                }
+                _ => { NonMaxU64::new(containers.get_workplace_idx(workplace_idx)) }
+            };
+            (household_container_idx, workplace_container_idx)
+        }).unzip();
 
         Agents {
             num_agents,
