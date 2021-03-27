@@ -10,19 +10,19 @@ use outbreak_sim::disease::State;
 
 const SCREEN_WIDTH: u32 = 1000;
 const SCREEN_HEIGHT: u32 = 1000;
-const WORLD_WIDTH: u32 = 800;
-const WORLD_HEIGHT: u32 = 800;
+const WORLD_WIDTH: u32 = 500;
+const WORLD_HEIGHT: u32 = 500;
 
 mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let model_name = "model_tower_hamlets";
+    // let model_name = "model_tower_hamlets";
     // let model_name = "model_greater_manchester";
-    // let model_name = "model_london_se_commuter_ring";
+    let model_name = "model_london_se_commuter_ring";
 
     let mut timestep: u32 = 0;
-    let iterations_per_render: u32 = 5;
+    let iterations_per_render: u32 = 10;
 
     let mut sim = outbreak_sim::Sim::new(model_name, true);
 

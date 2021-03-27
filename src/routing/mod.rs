@@ -35,7 +35,7 @@ pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type
     let p2 = containers.get(to_container_idx.get()).unwrap().pos;
     let dist = ((p2.x() - p1.x()).powi(2) + (p2.y() - p1.y()).powi(2)).sqrt();
 
-    (dist * match routing_type {
+    (dist / match routing_type {
         DirectRoutingType::Walking => {
             WALKING_SPEED
         }

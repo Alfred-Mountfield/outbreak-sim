@@ -57,7 +57,8 @@ impl Event {
                 match travel_type.routing_type {
                     RoutingType::Transit => { unimplemented!() }
                     RoutingType::Direct(direct_routing_type) => {
-                        let commute_time = calculate_direct_commute_time(containers, direct_routing_type, travel_type.from_container_idx, travel_type.to_container_idx);
+                        let mut commute_time = calculate_direct_commute_time(containers, direct_routing_type, travel_type.from_container_idx, travel_type.to_container_idx);
+                        if commute_time == 0 {commute_time = 1};
                         Some(Event {
                             agent_idx: self.agent_idx,
                             end_time_step: self.end_time_step + commute_time,

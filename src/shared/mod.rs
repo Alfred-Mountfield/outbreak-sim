@@ -1,7 +1,7 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
 pub static SIMULATION_LENGTH_IN_DAYS: AtomicU16 = AtomicU16::new(30);
-pub static TIME_STEPS_PER_DAY: AtomicU16 = AtomicU16::new(48); // every minute
+pub static TIME_STEPS_PER_DAY: AtomicU16 = AtomicU16::new(1440); // every minute
 // TODO make mutable, OnceCell?, also make it easier to input like kph
 pub static WALKING_SPEED: f32 = 80.5; //meters per minute
 pub static CYCLING_SPEED: f32 = 350.0; // meters per minute

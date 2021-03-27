@@ -15,8 +15,10 @@ impl Update for EventIndex {
     fn update<M>(&mut self, time_step: u32, agents: &Agents, containers: &mut Containers<M>) where M: MixingStrategy {
         if let Some(mut events) = self.pop_front() {
             events.drain(..).for_each(|event| {
+                debug_assert!(event.end_time_step == time_step);
                 if let Some(next_event) = event.handle(agents, containers) {
-                    self.get_mut_or_grow((next_event.end_time_step - time_step) as usize).unwrap().push(next_event);
+                    let next_time = (next_event.end_time_step - time_step - 1) as usize; // minus one because we've already popped this time_step's index
+                    self.get_mut_or_grow(next_time).unwrap().push(next_event);
                 }
             });
         }

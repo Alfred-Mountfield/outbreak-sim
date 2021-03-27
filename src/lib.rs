@@ -38,7 +38,7 @@ impl Sim<Uniform> {
     pub fn new(model_name: &str, load_fast_graph_from_disk: bool) -> Self {
         // set_up_global_params();
         let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
-        let mixing_strategy = Uniform { transmission_chance: 0.04 };
+        let mixing_strategy = Uniform { transmission_chance: 0.0004 };
         let model = get_root_as_model(&bytes);
         // TODO Ensure that this is non-inclusive
         let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise
@@ -49,12 +49,12 @@ impl Sim<Uniform> {
 
         let fast_graph = match load_fast_graph_from_disk {
             true => {
+                fast_paths::load_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap()
+            }
+            false => {
                 let fast_graph = get_fast_graph(model.transit_graph());
                 fast_paths::save_to_disk(&fast_graph, &*("fast_paths/".to_string() + model_name + ".fp")).unwrap();
                 fast_graph
-            }
-            false => {
-                fast_paths::load_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap()
             }
         };
 
