@@ -1,11 +1,10 @@
 use rand::Rng;
 
 use crate::disease::{DiseaseStatus, State};
-use crate::disease::status::State::Susceptible;
-use crate::agents::Agents;
+use crate::types::TimeStep;
 
 pub trait MixingStrategy<T: Send + Sync = Self>: Send + Sync {
-    fn handle_transmission<R>(&self, statuses: &mut [&mut DiseaseStatus], rng: &mut R)
+    fn handle_transmission<R>(&self, statuses: &mut [&mut DiseaseStatus], rng: &mut R, for_time_steps: TimeStep)
         where R: Rng + ?Sized;
 }
 
@@ -24,7 +23,7 @@ pub struct Uniform {
 /// etc. into consideration
 impl MixingStrategy for Uniform {
     #[inline]
-    fn handle_transmission<R>(&self, statuses: &mut [&mut DiseaseStatus], rng: &mut R)
+    fn handle_transmission<R>(&self, statuses: &mut [&mut DiseaseStatus], rng: &mut R, for_time_steps: TimeStep)
         where R: Rng + ?Sized
     {
         let mut num_infected = 0;
@@ -37,14 +36,11 @@ impl MixingStrategy for Uniform {
             }
         }
 
-        let chance = self.transmission_chance * (num_infected as f32);
+        let chance = self.transmission_chance * (num_infected as f32) * (for_time_steps as f32);
         for agent_status in statuses.iter_mut() {
-            if agent_status.state == State::Susceptible {
-                if rng.gen::<f32>() < chance {
-                    agent_status.infect()
-                };
+            if agent_status.state == State::Susceptible && rng.gen::<f32>() < chance {
+                agent_status.infect()
             };
         };
-
     }
 }

@@ -33,7 +33,7 @@ impl Agents {
             let workplace_container_idx = match workplace_idx {
                 u32::MAX => {
                     // TODO Update this, super hacky right now as people without workplaces don't have Event schedules so need to manually be placed in a container
-                    containers.push_inhabitant(household_container_idx, agent_idx as u32);
+                    containers.push_inhabitant_no_update(household_container_idx, agent_idx as u32);
                     None
                 }
                 _ => { NonMaxU64::new(containers.get_workplace_idx(workplace_idx)) }

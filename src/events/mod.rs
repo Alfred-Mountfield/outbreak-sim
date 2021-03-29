@@ -41,7 +41,7 @@ impl Events {
         }
     }
 
-    pub fn update<M>(&mut self, time_step: TimeStep, agents: &Agents, containers: &mut Containers<M>) where M: MixingStrategy {
+    pub fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>) where M: MixingStrategy {
         self.event_index.update(time_step, agents, containers);
     }
 }

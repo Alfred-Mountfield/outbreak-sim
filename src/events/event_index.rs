@@ -9,11 +9,11 @@ use crate::types::TimeStep;
 pub type EventIndex = VecDeque<Vec<Event>>;
 
 pub trait Update {
-    fn update<M>(&mut self, time_step: TimeStep, agents: &Agents, containers: &mut Containers<M>) where M: MixingStrategy;
+    fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>) where M: MixingStrategy;
 }
 
 impl Update for EventIndex {
-    fn update<M>(&mut self, time_step: TimeStep, agents: &Agents, containers: &mut Containers<M>) where M: MixingStrategy {
+    fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>) where M: MixingStrategy {
         if let Some(mut events) = self.pop_front() {
             events.drain(..).for_each(|event| {
                 debug_assert!(event.end_time_step == time_step);

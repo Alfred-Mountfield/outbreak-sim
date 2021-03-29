@@ -77,7 +77,7 @@ impl Sim<Uniform> {
     }
 
     pub fn update(&mut self, time_step: TimeStep) {
-        self.events.update(time_step, &self.agents, &mut self.containers);
-        self.containers.update(&mut self.agents); // Handle transmission and disease status updates
+        self.events.update(time_step, &mut self.agents, &mut self.containers);
+        // self.containers.update(&mut self.agents); // Handle transmission and disease status updates
     }
 }

@@ -34,11 +34,11 @@ pub struct TravelType {
 
 impl Event {
     #[inline]
-    pub fn handle<M>(self, agents: &Agents, containers: &mut Containers<M>) -> Option<Event>
+    pub fn handle<M>(self, agents: &mut Agents, containers: &mut Containers<M>) -> Option<Event>
         where M: MixingStrategy {
         match self.event_type {
             EventType::EnterContainer(from_container_idx) => {
-                containers.push_inhabitant(from_container_idx.get(), self.agent_idx);
+                containers.push_inhabitant(from_container_idx.get(), self.agent_idx, self.end_time_step, agents);
 
                 let occupation_container_idx = agents.occupational_container[self.agent_idx as usize].unwrap();
                 let to_container_idx = if from_container_idx != occupation_container_idx { from_container_idx } else { NonMaxU64::new(agents.household_container[self.agent_idx as usize]).unwrap() };
@@ -54,7 +54,7 @@ impl Event {
                 })
             }
             EventType::Travel(travel_type) => {
-                containers.remove_inhabitant(travel_type.from_container_idx.get(), self.agent_idx);
+                containers.remove_inhabitant(travel_type.from_container_idx.get(), self.agent_idx, self.end_time_step, agents);
                 match travel_type.routing_type {
                     RoutingType::Transit => { unimplemented!() }
                     RoutingType::Direct(direct_routing_type) => {
