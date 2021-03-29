@@ -1,15 +1,16 @@
 use std::cmp::{max, min};
 
+use nonmax::NonMaxU64;
 use rand::Rng;
 use rand::seq::{IteratorRandom, SliceRandom};
 
 use crate::Bounds;
-use crate::flatbuffer::TransitGraph;
-pub use crate::routing::granular_grid::GranularGrid;
-use nonmax::NonMaxU64;
-use crate::pois::Containers;
 use crate::disease::MixingStrategy;
-use crate::shared::{WALKING_SPEED, CYCLING_SPEED, DRIVING_SPEED};
+use crate::flatbuffer::TransitGraph;
+use crate::pois::Containers;
+pub use crate::routing::granular_grid::GranularGrid;
+use crate::shared::{CYCLING_SPEED, DRIVING_SPEED, WALKING_SPEED};
+use crate::types::TimeStep;
 
 pub mod transit;
 mod granular_grid;
@@ -28,7 +29,8 @@ pub enum DirectRoutingType {
 }
 
 #[inline]
-pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type: DirectRoutingType, from_container_idx: NonMaxU64, to_container_idx: NonMaxU64) -> u32
+pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type: DirectRoutingType,
+                                        from_container_idx: NonMaxU64, to_container_idx: NonMaxU64) -> TimeStep
     where M: MixingStrategy
 {
     let p1 = containers.get(from_container_idx.get()).unwrap().pos;
@@ -45,7 +47,7 @@ pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type
         DirectRoutingType::Driving => {
             DRIVING_SPEED
         }
-    }) as u32
+    }) as TimeStep
 }
 
 /// Creates a GranularGrid of TransitNodes

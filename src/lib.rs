@@ -13,6 +13,7 @@ use crate::disease::{MixingStrategy, Uniform};
 use crate::pois::Containers;
 use routing::transit::get_fast_graph;
 use crate::shared::set_up_global_params;
+use crate::types::TimeStep;
 
 // TODO Revisit public access
 pub mod agents;
@@ -21,6 +22,7 @@ pub mod disease;
 pub mod shared;
 pub mod routing;
 pub mod events;
+mod types;
 mod flatbuffer;
 
 // TODO static Cell<> for global params
@@ -74,7 +76,7 @@ impl Sim<Uniform> {
         }
     }
 
-    pub fn update(&mut self, time_step: u32) {
+    pub fn update(&mut self, time_step: TimeStep) {
         self.events.update(time_step, &self.agents, &mut self.containers);
         self.containers.update(&mut self.agents); // Handle transmission and disease status updates
     }

@@ -9,12 +9,13 @@ use crate::pois::Containers;
 use crate::routing::{calculate_direct_commute_time, RoutingType};
 use crate::routing::DirectRoutingType::Driving;
 use crate::shared::TIME_STEPS_PER_DAY;
+use crate::types::TimeStep;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Event {
     pub agent_idx: u32,
-    // start_timestep: u32,
-    pub end_time_step: u32,
+    // start_timestep: TimeStep,
+    pub end_time_step: TimeStep,
     pub event_type: EventType,
 }
 
@@ -44,7 +45,7 @@ impl Event {
 
                 Some(Event {
                     agent_idx: self.agent_idx,
-                    end_time_step: self.end_time_step + (TIME_STEPS_PER_DAY.load(Ordering::Relaxed) as u32 / 2),
+                    end_time_step: self.end_time_step + (TIME_STEPS_PER_DAY.load(Ordering::Relaxed) as TimeStep / 2),
                     event_type: Travel(TravelType {
                         from_container_idx,
                         to_container_idx,
