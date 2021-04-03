@@ -4,7 +4,7 @@ use rand::SeedableRng;
 use crate::disease;
 use crate::disease::{DiseaseStatus, MixingStrategy};
 use crate::flatbuffer::{Model};
-use crate::pois::Containers;
+use crate::containers::Containers;
 use nonmax::NonMaxU64;
 
 
@@ -14,7 +14,6 @@ pub struct Agents {
     pub occupational_container: Vec<Option<NonMaxU64>>,
     // workplace or school
     pub disease_statuses: Vec<DiseaseStatus>,
-    rng: StdRng,
 }
 
 impl Agents {
@@ -46,7 +45,6 @@ impl Agents {
             household_container,
             occupational_container: workplace_container,
             disease_statuses: disease::construct_disease_status_array(num_agents, &mut rng),
-            rng,
         }
     }
 }

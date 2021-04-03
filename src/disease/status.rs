@@ -1,6 +1,5 @@
 use rand::rngs::StdRng;
 use rand::Rng;
-use crate::flatbuffer::Vec2;
 
 // Infection and Disease Progression
 #[derive(PartialEq)]

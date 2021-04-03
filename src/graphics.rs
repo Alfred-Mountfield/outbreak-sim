@@ -1,25 +1,14 @@
-// Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
-use outbreak_sim::{Bounds, disease, Sim};
-use outbreak_sim::agents::Agents;
-use outbreak_sim::pois::Containers;
-use outbreak_sim::disease::MixingStrategy;
 use std::cmp::min;
+
+// Heavily inspired by https://github.com/parasyte/pixels/blob/master/examples/conway/src/main.rs
+use outbreak_sim::{disease, Sim};
+use outbreak_sim::disease::MixingStrategy;
 
 #[derive(Clone, Copy, Debug, Default)]
 struct Cell {
     // [Susceptible, Infectious, Recovered]
     pub num_people_with_ds: [u8; 3],
 }
-
-
-impl Cell {
-    fn new() -> Self {
-        Self {
-            num_people_with_ds: [0; 3]
-        }
-    }
-}
-
 
 pub struct WorldGrid {
     cells: Vec<Cell>,
@@ -83,18 +72,6 @@ impl WorldGrid {
             // println!("{},{},{}", c.num_people_with_ds[0], c.num_people_with_ds[1], c.num_people_with_ds[2]);
             let color = [c.num_people_with_ds[1], c.num_people_with_ds[0], c.num_people_with_ds[2], 0];
             pix.copy_from_slice(&color);
-        }
-    }
-
-    fn grid_idx<I: std::convert::TryInto<usize>>(&self, x: I, y: I) -> Option<usize> {
-        if let (Ok(x), Ok(y)) = (x.try_into(), y.try_into()) {
-            if x < self.width && y < self.height {
-                Some(x + y * self.width)
-            } else {
-                None
-            }
-        } else {
-            None
         }
     }
 }

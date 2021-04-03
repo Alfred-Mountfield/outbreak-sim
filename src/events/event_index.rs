@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use crate::agents::Agents;
 use crate::disease::MixingStrategy;
 use crate::events::event::Event;
-use crate::pois::Containers;
+use crate::containers::Containers;
 use crate::types::TimeStep;
 
 pub type EventIndex = VecDeque<Vec<Event>>;

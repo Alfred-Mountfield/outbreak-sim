@@ -3,7 +3,7 @@ use rayon::prelude::*;
 
 use outbreak_sim::{agents, get_root_as_model, Model, read_buffer};
 use outbreak_sim::disease::Uniform;
-use outbreak_sim::pois::Containers;
+use outbreak_sim::containers::Containers;
 
 struct InputData<'a> {
     model: Model<'a>,

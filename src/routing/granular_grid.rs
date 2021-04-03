@@ -1,7 +1,6 @@
-use crate::flatbuffer::TransitNode;
 use std::iter;
 use std::ops::{Index, IndexMut};
-use std::ops;
+
 use crate::Bounds;
 
 #[derive(PartialEq, Debug)]
@@ -77,8 +76,9 @@ impl<T> IndexMut<[f32; 2]> for GranularGrid<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::flatbuffer::Vec2;
+
+    use super::*;
 
     #[test]
     fn test_new_granular_grid() {

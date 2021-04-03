@@ -6,7 +6,7 @@ use rayon::prelude::*;
 use outbreak_sim::{agents, get_root_as_model, Model, read_buffer, Vec2};
 use outbreak_sim::agents::Agents;
 use outbreak_sim::disease::{Uniform, MixingStrategy};
-use outbreak_sim::pois::Containers;
+use outbreak_sim::containers::Containers;
 use outbreak_sim::routing::{GranularGrid, nodes_to_granular_grid, sample_nearby_from_grid};
 use outbreak_sim::Sim;
 use rand::{thread_rng, Rng};

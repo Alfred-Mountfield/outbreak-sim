@@ -6,7 +6,7 @@ use crate::agents::Agents;
 use crate::disease::MixingStrategy;
 use crate::events::event::{Event, EventType};
 use crate::events::event_index::{EventIndex, Update, VecDequeMutExt};
-use crate::pois::Containers;
+use crate::containers::Containers;
 use crate::shared::TIME_STEPS_PER_DAY;
 use crate::types::TimeStep;
 

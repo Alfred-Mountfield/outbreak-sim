@@ -5,7 +5,7 @@ use nonmax::NonMaxU64;
 use crate::agents::Agents;
 use crate::disease::MixingStrategy;
 use crate::events::event::EventType::{EnterContainer, Travel};
-use crate::pois::Containers;
+use crate::containers::Containers;
 use crate::routing::{calculate_direct_commute_time, RoutingType};
 use crate::routing::DirectRoutingType::Driving;
 use crate::shared::TIME_STEPS_PER_DAY;
