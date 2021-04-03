@@ -5,19 +5,23 @@ use crate::disease::MixingStrategy;
 use crate::events::event::Event;
 use crate::containers::Containers;
 use crate::types::TimeStep;
+use fast_paths::{PathCalculator, FastGraph};
+use crate::routing::GranularGrid;
 
 pub type EventIndex = VecDeque<Vec<Event>>;
 
 pub trait Update {
-    fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>) where M: MixingStrategy;
+    fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>, transit_grid: &GranularGrid<usize>,
+                 fast_graph: &FastGraph, transit_path_calculator: &mut PathCalculator) where M: MixingStrategy;
 }
 
 impl Update for EventIndex {
-    fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>) where M: MixingStrategy {
+    fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>, transit_grid: &GranularGrid<usize>,
+                 fast_graph: &FastGraph,  transit_path_calculator: &mut PathCalculator) where M: MixingStrategy {
         if let Some(mut events) = self.pop_front() {
             events.drain(..).for_each(|event| {
                 debug_assert!(event.end_time_step == time_step);
-                if let Some(next_event) = event.handle(agents, containers) {
+                if let Some(next_event) = event.handle(agents, containers, transit_grid, fast_graph, transit_path_calculator) {
                     let index_of_next_time = (next_event.end_time_step - time_step - 1) as usize; // minus one because we've already popped this time_step's index
                     self.get_mut_or_grow(index_of_next_time).unwrap().push(next_event);
                 }

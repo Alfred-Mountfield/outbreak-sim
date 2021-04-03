@@ -7,9 +7,11 @@ pub use model_generated::outbreak_sim::model::{
     get_root_as_model,
     Households,
     Model,
-    TransitEdge,
     TransitGraph,
+    TransitEdge,
     TransitNode,
+    TransitEdgeRides,
+    TransitRide,
     Vec2,
     Workplaces,
 };

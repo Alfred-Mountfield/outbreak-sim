@@ -15,8 +15,8 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let model_name = "model_tower_hamlets";
-    // let model_name = "model_greater_manchester";
+    // let model_name = "model_tower_hamlets";
+    let model_name = "model_greater_manchester";
     // let model_name = "model_london_se_commuter_ring";
 
     let mut timestep: u16 = 0;

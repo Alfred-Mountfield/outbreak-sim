@@ -52,10 +52,10 @@ impl WorldGrid {
             for &agent_idx in container.inhabitants.iter() {
                 match sim.agents.disease_statuses[agent_idx as usize].state {
                     disease::State::Susceptible => {
-                        num_people[0] = num_people[0].saturating_add(10);
+                        num_people[0] = num_people[0].saturating_add(20);
                     },
                     disease::State::Infectious => {
-                        num_people[1] = num_people[1].saturating_add(110);
+                        num_people[1] = num_people[1].saturating_add(20);
                     },
                     disease::State::Recovered => {
                         num_people[1] = num_people[1].saturating_add(2);

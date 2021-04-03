@@ -1,7 +1,7 @@
 use std::cmp::{max, min};
 
 use nonmax::NonMaxU64;
-use rand::Rng;
+use rand::{Rng, thread_rng};
 use rand::seq::{IteratorRandom, SliceRandom};
 
 use crate::Bounds;
@@ -11,6 +11,7 @@ use crate::containers::Containers;
 pub use crate::routing::granular_grid::GranularGrid;
 use crate::shared::{CYCLING_SPEED, DRIVING_SPEED, WALKING_SPEED};
 use crate::types::TimeStep;
+use fast_paths::{PathCalculator, FastGraph};
 
 pub mod transit;
 mod granular_grid;
@@ -50,10 +51,33 @@ pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type
     }) as TimeStep
 }
 
+#[inline]
+pub fn calculate_public_transit_commute_time<'e, M>(containers: &Containers<M>, transit_grid: &GranularGrid<usize>,
+                                                transit_path_calculator: &mut PathCalculator, fast_graph: &FastGraph,
+                                                from_container_idx: NonMaxU64, to_container_idx: NonMaxU64) -> Result<TimeStep, &'e str>
+    where M: MixingStrategy
+{
+    let start_pos = containers.get(from_container_idx.get()).unwrap().pos;
+    let end_pos = containers.get(to_container_idx.get()).unwrap().pos;
+    let mut rng = thread_rng();
+
+    let start_nodes = sample_nearby_from_grid(transit_grid, (start_pos.y(), start_pos.x()), 3_500.0, 5,&mut rng).unwrap();
+    let end_nodes = sample_nearby_from_grid(transit_grid, (end_pos.y(), end_pos.x()), 3_500.0, 5, &mut rng).unwrap();
+
+    for end_node in end_nodes {
+        for start_node in &start_nodes {
+            if let Some(shortest_path) = transit_path_calculator.calc_path(fast_graph, *start_node, end_node) {
+                return Ok(shortest_path.get_weight() as TimeStep);
+            }
+        }
+    }
+    Err("No suitable paths were found")
+}
+
 /// Creates a GranularGrid of TransitNodes
 pub fn nodes_to_granular_grid(transit_graph: &TransitGraph, bounds: &Bounds, rows: u32) -> GranularGrid<usize> {
     let mut grid = GranularGrid::<usize>::new(rows, bounds);
-    for (index, node) in transit_graph.nodes().unwrap().iter().enumerate() {
+    for (index, node) in transit_graph.nodes().iter().enumerate() {
         grid[[node.pos().y(), node.pos().x()]].push(index)
     }
 
@@ -104,23 +128,25 @@ fn get_coords_on_perimeter(center_row: isize, center_col: isize, dist: isize, ro
 /// * `cut_off` - The approximate maximum distance at which to stop searching
 /// * `rng` - Rng to pass to the choose() function for sampling
 #[inline]
-pub fn sample_nearby_from_grid<'a, R>(grid: &'a GranularGrid<usize>, centre: (f32, f32), cut_off: f32, rng: &mut R) -> Option<&'a usize>
+pub fn sample_nearby_from_grid<R>(grid: &GranularGrid<usize>, centre: (f32, f32), cut_off: f32, num_samples: usize, rng: &mut R) -> Option<Vec<usize>>
     where R: Rng + ?Sized {
     let mut dist: u32 = 0;
     let pos = ((centre.0 * grid.idx_to_coord_ratio) as u32, (centre.1 * grid.idx_to_coord_ratio) as u32);
 
     if let Some(chosen) = grid.get_int_index(pos.0, pos.1).choose(rng) {
-        return Some(chosen);
+        return Some(vec![*chosen]);
     }
 
     while (dist as f32 / grid.idx_to_coord_ratio) <= cut_off {
         dist += 1;
-        if let Some(chosen) = get_coords_on_perimeter(pos.0 as isize, pos.1 as isize,
-                                                      dist as isize, grid.rows, grid.cols).iter()
+        let sampled = get_coords_on_perimeter(pos.0 as isize, pos.1 as isize, dist as isize, grid.rows, grid.cols)
+            .into_iter()
             .flat_map(|pos| {
-                grid.get_int_index(pos.0, pos.1)
-            }).choose(rng) {
-            return Some(chosen);
+                grid.get_int_index(pos.0, pos.1).clone()
+            })
+            .choose_multiple(rng, num_samples);
+        if !sampled.is_empty() {
+            return Some(sampled);
         }
     }
 
