@@ -4,7 +4,6 @@ extern crate flatbuffers;
 pub use model_generated::outbreak_sim::model::{
     Agents,
     Bounds,
-    Container,
     get_root_as_model,
     Households,
     Model,

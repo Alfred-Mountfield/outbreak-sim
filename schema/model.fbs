@@ -19,17 +19,10 @@ table Agents {
 // TODO Parent Buildings for Lifts, Shared Gyms, etc.
 table Households {
   pos:[Vec2] (required);
-  //container_index:[uint32] (required);
 }
 
 table Workplaces {
   pos:[Vec2] (required);
-  //container_index:[uint32] (required);
-}
-
-struct Container {
-  width:uint16;
-  height:uint16;
 }
 
 struct TransitNode {
@@ -43,9 +36,21 @@ struct TransitEdge {
   //transit_type:TransitType;
 }
 
+struct TransitRide {
+    start_time:uint16;
+    duration_mins:uint8;
+}
+
+table TransitEdgeRides {
+    start_node_index:uint16;
+    end_node_index:uint16;
+    rides:[TransitRide];
+}
+
 table TransitGraph {
   nodes:[TransitNode];
   edges:[TransitEdge];
+  edge_rides:[TransitEdgeRides];
 }
 
 table Model {
@@ -54,7 +59,6 @@ table Model {
   households:Households (required);
   workplaces:Workplaces (required);
   transit_graph:TransitGraph (required);
-  containers:[Container];
 }
 
 root_type Model;
