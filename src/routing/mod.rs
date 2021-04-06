@@ -53,21 +53,23 @@ pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type
 
 #[inline]
 pub fn calculate_public_transit_commute_time<'e, M>(containers: &Containers<M>, transit_grid: &GranularGrid<usize>,
-                                                transit_path_calculator: &mut PathCalculator, fast_graph: &FastGraph,
-                                                from_container_idx: NonMaxU64, to_container_idx: NonMaxU64) -> Result<TimeStep, &'e str>
+                                                    transit_path_calculator: &mut PathCalculator, fast_graph: &FastGraph,
+                                                    from_container_idx: NonMaxU64, to_container_idx: NonMaxU64) -> Result<TimeStep, &'e str>
     where M: MixingStrategy
 {
     let start_pos = containers.get(from_container_idx.get()).unwrap().pos;
     let end_pos = containers.get(to_container_idx.get()).unwrap().pos;
     let mut rng = thread_rng();
 
-    let start_nodes = sample_nearby_from_grid(transit_grid, (start_pos.y(), start_pos.x()), 3_500.0, 5,&mut rng).unwrap();
-    let end_nodes = sample_nearby_from_grid(transit_grid, (end_pos.y(), end_pos.x()), 3_500.0, 5, &mut rng).unwrap();
+    let possible_start_nodes = sample_nearby_from_grid(transit_grid, (start_pos.y(), start_pos.x()), 3_500.0, 5, &mut rng);
+    let possible_end_nodes = sample_nearby_from_grid(transit_grid, (end_pos.y(), end_pos.x()), 3_500.0, 5, &mut rng);
 
-    for end_node in end_nodes {
-        for start_node in &start_nodes {
-            if let Some(shortest_path) = transit_path_calculator.calc_path(fast_graph, *start_node, end_node) {
-                return Ok(shortest_path.get_weight() as TimeStep);
+    if let (Some(start_nodes), Some(end_nodes)) = (possible_start_nodes, possible_end_nodes) {
+        for end_node in end_nodes {
+            for start_node in &start_nodes {
+                if let Some(shortest_path) = transit_path_calculator.calc_path(fast_graph, *start_node, end_node) {
+                    return Ok(shortest_path.get_weight() as TimeStep);
+                }
             }
         }
     }

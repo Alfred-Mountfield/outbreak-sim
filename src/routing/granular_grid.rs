@@ -1,3 +1,4 @@
+use std::cmp::{min};
 use std::iter;
 use std::ops::{Index, IndexMut};
 
@@ -35,7 +36,7 @@ impl<T> GranularGrid<T> {
         let cols = (bounds.max().x() * idx_to_coord_ratio).ceil() as u32;
         let size = (rows as usize).checked_mul(cols as usize).expect("too big");
 
-        let cells = iter::repeat_with(|| Vec::<T>::new()).take(size).collect();
+        let cells = iter::repeat_with(Vec::<T>::new).take(size).collect();
         Self {
             rows,
             cols,
@@ -47,7 +48,9 @@ impl<T> GranularGrid<T> {
 
     /// Returns the vector of elements at a given cell's (row,col) index
     pub fn get_int_index(&self, row: u32, col: u32) -> &Vec<T> {
-        &self.cells[row as usize * self.cols as usize + col as usize]
+        // TODO floating-point error can lead to bad accesses
+        let index = min(row as usize * self.cols as usize + col as usize, self.cells.len() - 1);
+        &self.cells[index]
     }
 }
 
