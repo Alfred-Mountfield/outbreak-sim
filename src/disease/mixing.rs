@@ -35,9 +35,7 @@ impl MixingStrategy for Uniform {
                     num_infected += 1;
                 }
 
-                for _ in 0..for_time_steps {
-                    status.progress_infection();
-                }
+                status.progress_infection(for_time_steps);
             }
         }
 

@@ -40,9 +40,9 @@ impl DiseaseStatus {
     }
 
     #[inline]
-    pub fn progress_infection(&mut self) {
+    pub fn progress_infection(&mut self, time_steps: TimeStep) {
         debug_assert!(self.state == State::Presymptomatic || self.state == State::Infectious);
-        self.infected_for += 1;
+        self.infected_for += time_steps;
 
         // TODO Update to not be constant
         if self.infected_for > 12 * TIME_STEPS_PER_DAY {

@@ -1,1 +1,1 @@
-pub type TimeStep = u16;
+pub type TimeStep = u32;

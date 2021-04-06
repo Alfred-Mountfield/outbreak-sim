@@ -6,6 +6,7 @@ use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 use outbreak_sim::disease::State;
 use outbreak_sim::reporting::{create_report_file, add_metric};
+use outbreak_sim::shared::types::TimeStep;
 
 const SCREEN_WIDTH: u32 = 1000;
 const SCREEN_HEIGHT: u32 = 1000;
@@ -17,14 +18,14 @@ mod graphics;
 
 fn main() -> Result<(), Error> {
     // let model_name = "model_tower_hamlets";
-    let model_name = "model_greater_manchester";
-    // let model_name = "model_london_se_commuter_ring";
+    // let model_name = "model_greater_manchester";
+    let model_name = "model_london_se_commuter_ring";
 
-    let mut time_step: u16 = 0;
+    let mut time_step: TimeStep = 0;
     let iterations_per_render: u32 = 60;
 
     let mut sim = outbreak_sim::Sim::new(model_name, true);
-    let mut report_writer = create_report_file("reports/".to_owned() + model_name, 0, true).unwrap();
+    let mut report_writer = create_report_file("reports/".to_owned() + model_name, 1, true).unwrap();
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
