@@ -45,11 +45,11 @@ impl DiseaseStatus {
         self.infected_for += 1;
 
         // TODO Update to not be constant
-        if self.infected_for > 3 * TIME_STEPS_PER_DAY {
-            self.state = State::Infectious
-        }
-        else if self.infected_for > 12 * TIME_STEPS_PER_DAY {
+        if self.infected_for > 12 * TIME_STEPS_PER_DAY {
             self.state = State::Recovered
+        }
+        else if self.infected_for > 3 * TIME_STEPS_PER_DAY {
+            self.state = State::Infectious
         }
     }
 }
