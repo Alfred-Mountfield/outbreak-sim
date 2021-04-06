@@ -1,7 +1,7 @@
 use rand::Rng;
 
 use crate::disease::{DiseaseStatus, State};
-use crate::types::TimeStep;
+use crate::shared::types::TimeStep;
 
 pub trait MixingStrategy<T: Send + Sync = Self>: Send + Sync {
     fn handle_transmission<R>(&self, statuses: &mut [&mut DiseaseStatus], rng: &mut R, for_time_steps: TimeStep)

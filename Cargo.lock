@@ -1341,12 +1341,14 @@ name = "outbreak-sim"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "csv",
  "fast_paths",
  "flatbuffers",
  "nonmax",
  "pixels",
  "rand 0.8.3",
  "rayon",
+ "serde",
  "winit",
  "winit_input_helper",
 ]

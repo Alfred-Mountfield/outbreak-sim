@@ -10,7 +10,7 @@ use crate::flatbuffer::TransitGraph;
 use crate::containers::Containers;
 pub use crate::routing::granular_grid::GranularGrid;
 use crate::shared::{CYCLING_SPEED, DRIVING_SPEED, WALKING_SPEED};
-use crate::types::TimeStep;
+use crate::shared::types::TimeStep;
 use fast_paths::{PathCalculator, FastGraph};
 
 pub mod transit;

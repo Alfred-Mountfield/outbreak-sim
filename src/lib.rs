@@ -6,14 +6,14 @@ pub use flatbuffer::Model;
 pub use flatbuffer::read_buffer;
 pub use flatbuffer::TransitGraph;
 pub use flatbuffer::Vec2;
-
-use crate::events::Events;
-use crate::agents::Agents;
-use crate::disease::{MixingStrategy, Uniform};
-use crate::containers::Containers;
 use routing::transit::get_fast_graph;
-use crate::types::TimeStep;
-use crate::routing::{nodes_to_granular_grid, GranularGrid};
+use shared::types::TimeStep;
+
+use crate::agents::Agents;
+use crate::containers::Containers;
+use crate::disease::{MixingStrategy, Uniform};
+use crate::events::Events;
+use crate::routing::{GranularGrid, nodes_to_granular_grid};
 
 // TODO Revisit public access
 pub mod agents;
@@ -22,7 +22,7 @@ pub mod disease;
 pub mod shared;
 pub mod routing;
 pub mod events;
-mod types;
+pub mod reporting;
 mod flatbuffer;
 
 // TODO static Cell<> for global params

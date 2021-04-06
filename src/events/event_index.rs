@@ -4,7 +4,7 @@ use crate::agents::Agents;
 use crate::disease::MixingStrategy;
 use crate::events::event::Event;
 use crate::containers::Containers;
-use crate::types::TimeStep;
+use crate::shared::types::TimeStep;
 use fast_paths::{PathCalculator, FastGraph};
 use crate::routing::GranularGrid;
 

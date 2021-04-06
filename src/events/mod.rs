@@ -6,7 +6,7 @@ use crate::events::event::{Event, EventType};
 use crate::events::event_index::{EventIndex, Update, VecDequeMutExt};
 use crate::containers::Containers;
 use crate::shared::TIME_STEPS_PER_DAY;
-use crate::types::TimeStep;
+use crate::shared::types::TimeStep;
 use fast_paths::{PathCalculator, FastGraph};
 use crate::routing::GranularGrid;
 

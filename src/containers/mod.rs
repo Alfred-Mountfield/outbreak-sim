@@ -3,7 +3,7 @@ use rand::rngs::ThreadRng;
 use crate::agents::Agents;
 use crate::disease::{DiseaseStatus, MixingStrategy, Uniform};
 use crate::flatbuffer::Vec2;
-use crate::types::TimeStep;
+use crate::shared::types::TimeStep;
 
 /// A Spatial Area where agents spend time and mix
 pub struct Container<M: MixingStrategy> {

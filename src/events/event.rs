@@ -9,7 +9,7 @@ use crate::events::event::EventType::{EnterContainer, Travel};
 use crate::routing::{calculate_direct_commute_time, calculate_public_transit_commute_time, GranularGrid, RoutingType, DirectRoutingType};
 use crate::routing::DirectRoutingType::Driving;
 use crate::shared::TIME_STEPS_PER_DAY;
-use crate::types::TimeStep;
+use crate::shared::types::TimeStep;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Event {

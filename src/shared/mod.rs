@@ -1,5 +1,8 @@
 use std::sync::atomic::{AtomicU16, Ordering};
-use crate::types::TimeStep;
+
+use crate::shared::types::TimeStep;
+
+pub mod types;
 
 pub static SIMULATION_LENGTH_IN_DAYS: AtomicU16 = AtomicU16::new(30);
 
