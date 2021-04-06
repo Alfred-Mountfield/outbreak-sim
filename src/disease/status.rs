@@ -17,7 +17,7 @@ pub struct DiseaseStatus {
 impl DiseaseStatus {
     pub fn new(rng: &mut StdRng) -> DiseaseStatus {
         DiseaseStatus {
-            state: if rng.gen::<f32>() < 0.98 { State::Susceptible } else { State::Infectious },
+            state: if rng.gen::<f32>() < 0.9998 { State::Susceptible } else { State::Infectious },
             infected_for: 0
         }
     }

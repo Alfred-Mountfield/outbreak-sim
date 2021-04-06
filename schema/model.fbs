@@ -38,7 +38,7 @@ struct TransitEdge {
 
 struct TransitRide {
     start_time:uint16;
-    duration_mins:uint8;
+    duration_mins:uint16;
 }
 
 table TransitEdgeRides {
