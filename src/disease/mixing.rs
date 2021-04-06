@@ -30,12 +30,16 @@ impl MixingStrategy for Uniform {
 
         // TODO revisit keeping track of susceptible in this loop, speed was tested for only households which are smaller than workplaces
         for status in statuses.iter_mut() {
-            if status.state == State::Infectious {
-                num_infected += 1;
+            if status.state == State::Presymptomatic || status.state == State::Infectious {
                 status.progress_infection();
+
+                if status.state == State::Infectious {
+                    num_infected += 1;
+                }
             }
         }
 
+        // TODO handle recoveries and new infections
         let chance = self.transmission_chance * (num_infected as f32) * (for_time_steps as f32);
         for agent_status in statuses.iter_mut() {
             if agent_status.state == State::Susceptible && rng.gen::<f32>() < chance {

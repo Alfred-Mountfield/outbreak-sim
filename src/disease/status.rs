@@ -1,24 +1,34 @@
 use rand::rngs::StdRng;
 use rand::Rng;
+use crate::shared::TIME_STEPS_PER_DAY;
+use crate::shared::types::TimeStep;
 
 // Infection and Disease Progression
 #[derive(PartialEq)]
 pub enum State {
     Susceptible,
+    Presymptomatic,
     Infectious,
     Recovered,
 }
 
 pub struct DiseaseStatus {
     pub state: State,
-    infected_for: u16, // How long the infection has lasted until now / recovery / death
+    infected_for: TimeStep, // How long the infection has lasted until now / recovery / death
 }
 
 impl DiseaseStatus {
     pub fn new(rng: &mut StdRng) -> DiseaseStatus {
-        DiseaseStatus {
-            state: if rng.gen::<f32>() < 0.9998 { State::Susceptible } else { State::Infectious },
-            infected_for: 0
+        if rng.gen::<f32>() < 0.999 {
+            DiseaseStatus {
+                state: State::Susceptible,
+                infected_for: 0,
+            }
+        } else {
+            DiseaseStatus {
+                state: State::Infectious,
+                infected_for: rng.gen_range(3..12),
+            }
         }
     }
 
@@ -31,12 +41,15 @@ impl DiseaseStatus {
 
     #[inline]
     pub fn progress_infection(&mut self) {
-        debug_assert!(self.state == State::Infectious);
+        debug_assert!(self.state == State::Presymptomatic || self.state == State::Infectious);
         self.infected_for += 1;
 
         // TODO Update to not be constant
-        if self.infected_for > 12 {
-
+        if self.infected_for > 3 * TIME_STEPS_PER_DAY {
+            self.state = State::Infectious
+        }
+        else if self.infected_for > 12 * TIME_STEPS_PER_DAY {
+            self.state = State::Recovered
         }
     }
 }

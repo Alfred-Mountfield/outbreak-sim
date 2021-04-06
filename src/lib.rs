@@ -41,7 +41,7 @@ impl Sim<Uniform> {
     pub fn new(model_name: &str, load_fast_graph_from_disk: bool) -> Self {
         // set_up_global_params();
         let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
-        let mixing_strategy = Uniform { transmission_chance: 0.00004 };
+        let mixing_strategy = Uniform { transmission_chance: 0.0000004 };
         let model = get_root_as_model(&bytes);
         // TODO Ensure that this is non-inclusive
         let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise

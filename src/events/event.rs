@@ -50,7 +50,8 @@ impl Event {
                     event_type: Travel(TravelType {
                         from_container_idx,
                         to_container_idx,
-                        routing_type: if thread_rng().gen::<f32>() < 0.8 { RoutingType::Direct(Driving) } else { RoutingType::Transit },
+                        // TODO Change Transit chance to non-zero when transit containers are implemented
+                        routing_type: if thread_rng().gen::<f32>() < 1.0 { RoutingType::Direct(Driving) } else { RoutingType::Transit },
                     }),
                 })
             }

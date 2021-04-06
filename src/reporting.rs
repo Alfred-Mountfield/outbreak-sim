@@ -15,6 +15,7 @@ use crate::shared::types::TimeStep;
 struct Metric {
     time_step: TimeStep,
     num_susceptible: usize,
+    num_presymptomatic: usize,
     num_infected: usize,
     num_recovered: usize,
 }
@@ -40,10 +41,11 @@ pub fn create_report_file<P>(out_dir: P, iteration: usize, replace: bool) -> Res
 }
 
 pub fn add_metric(report_writer: &mut Writer<File>, time_step: TimeStep, agents: &Agents) -> Result<(), io::Error> {
-    let (mut num_susceptible, mut num_infected, mut num_recovered) = (0, 0, 0);
+    let (mut num_susceptible, mut num_presymptomatic, mut num_infected, mut num_recovered) = (0, 0, 0, 0);
     for status in &agents.disease_statuses {
         match status.state {
             State::Susceptible => { num_susceptible += 1 }
+            State::Presymptomatic => { num_presymptomatic += 1 }
             State::Infectious => { num_infected += 1 }
             State::Recovered => { num_recovered += 1 }
         }
@@ -52,6 +54,7 @@ pub fn add_metric(report_writer: &mut Writer<File>, time_step: TimeStep, agents:
     let metric = Metric {
         time_step,
         num_susceptible,
+        num_presymptomatic,
         num_infected,
         num_recovered
     };

@@ -54,11 +54,14 @@ impl WorldGrid {
                     disease::State::Susceptible => {
                         num_people[0] = num_people[0].saturating_add(10);
                     },
+                    disease::State::Presymptomatic => {
+                        num_people[1] = num_people[1].saturating_add(10);
+                    }
                     disease::State::Infectious => {
                         num_people[1] = num_people[1].saturating_add(20);
                     },
                     disease::State::Recovered => {
-                        num_people[1] = num_people[1].saturating_add(2);
+                        num_people[2] = num_people[2].saturating_add(10);
                     }
                 }
             }
