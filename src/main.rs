@@ -7,22 +7,23 @@ use winit_input_helper::WinitInputHelper;
 use outbreak_sim::disease::State;
 use outbreak_sim::reporting::{create_report_file, add_metric};
 use outbreak_sim::shared::types::TimeStep;
+use outbreak_sim::shared::TIME_STEPS_PER_DAY;
 
-const SCREEN_WIDTH: u32 = 1000;
-const SCREEN_HEIGHT: u32 = 1000;
-const WORLD_WIDTH: u32 = 650;
-const WORLD_HEIGHT: u32 = 650;
+const SCREEN_WIDTH: u32 = 950;
+const SCREEN_HEIGHT: u32 = 950;
+const WORLD_WIDTH: u32 = 500;
+const WORLD_HEIGHT: u32 = 500;
 
 mod graphics;
 
 
 fn main() -> Result<(), Error> {
     // let model_name = "model_tower_hamlets";
-    // let model_name = "model_greater_manchester";
-    let model_name = "model_london_se_commuter_ring";
+    let model_name = "model_greater_manchester";
+    // let model_name = "model_london_se_commuter_ring";
 
     let mut time_step: TimeStep = 0;
-    let iterations_per_render: u32 = 60;
+    let iterations_per_render: u32 = 30;
 
     let mut sim = outbreak_sim::Sim::new(model_name, true);
     let mut report_writer = create_report_file("reports/".to_owned() + model_name, 1, true).unwrap();
@@ -73,8 +74,12 @@ fn main() -> Result<(), Error> {
                 pixels.resize(size.width, size.height);
             }
 
-            if time_step % 5 == 0 {
-                println!("Time step: {}", time_step);
+            // if time_step % 5 == 0 {
+            //     println!("Time step: {}", time_step);
+            //     println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
+            // }
+            if time_step % TIME_STEPS_PER_DAY == 0 {
+                println!("Day: {}", time_step / TIME_STEPS_PER_DAY);
                 println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
             }
 

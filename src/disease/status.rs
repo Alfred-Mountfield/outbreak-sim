@@ -27,7 +27,7 @@ impl DiseaseStatus {
         } else {
             DiseaseStatus {
                 state: State::Infectious,
-                infected_for: rng.gen_range(3..12),
+                infected_for: rng.gen_range(0..3),
             }
         }
     }
@@ -35,7 +35,7 @@ impl DiseaseStatus {
     #[inline]
     pub fn infect(&mut self) {
         debug_assert!(self.state == State::Susceptible);
-        self.state = State::Infectious;
+        self.state = State::Presymptomatic;
         self.infected_for = 0;
     }
 

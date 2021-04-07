@@ -6,8 +6,11 @@ use outbreak_sim::disease::MixingStrategy;
 
 #[derive(Clone, Copy, Debug, Default)]
 struct Cell {
-    // [Susceptible, Infectious, Recovered]
-    pub num_people_with_ds: [u8; 3],
+    total: u32,
+    num_susceptible: u32,
+    num_presymptomatic: u32,
+    num_infectious: u32,
+    num_recovered: u32
 }
 
 pub struct WorldGrid {
@@ -38,7 +41,7 @@ impl WorldGrid {
             for x in 0..self.width {
                 let idx = x + y * self.width;
                 // Write into scratch_cells, since we're still reading from `self.cells`
-                self.scratch_cells[idx].num_people_with_ds = [0, 0, 0];
+                self.scratch_cells[idx] = Cell::default();
             }
         }
         for container_idx in 0..sim.containers.len() {
@@ -48,32 +51,33 @@ impl WorldGrid {
             x = min(x, self.width - 1); y = min(y, self.height - 1);
             let idx = x + y * self.width;
 
-            let num_people = &mut self.scratch_cells[idx].num_people_with_ds;
+            let disease_states = &mut self.scratch_cells[idx];
             for &agent_idx in container.inhabitants.iter() {
                 match sim.agents.disease_statuses[agent_idx as usize].state {
                     disease::State::Susceptible => {
-                        num_people[0] = num_people[0].saturating_add(10);
+                        disease_states.num_susceptible += 1;
                     },
                     disease::State::Presymptomatic => {
-                        num_people[1] = num_people[1].saturating_add(10);
+                        disease_states.num_presymptomatic += 1;
                     }
                     disease::State::Infectious => {
-                        num_people[1] = num_people[1].saturating_add(20);
+                        disease_states.num_infectious += 1;
                     },
                     disease::State::Recovered => {
-                        num_people[2] = num_people[2].saturating_add(10);
+                        disease_states.num_recovered += 1;
                     }
                 }
             }
+            disease_states.total += container.inhabitants.len() as u32;
         }
         std::mem::swap(&mut self.scratch_cells, &mut self.cells);
     }
 
     pub fn draw(&self, screen: &mut [u8]) {
-        // debug_assert_eq!(screen.len(), 4 * self.cells.len());
+        debug_assert_eq!(screen.len(), 4 * self.cells.len());
         for (c, pix) in self.cells.iter().zip(screen.chunks_exact_mut(4)) {
-            // println!("{},{},{}", c.num_people_with_ds[0], c.num_people_with_ds[1], c.num_people_with_ds[2]);
-            let color = [c.num_people_with_ds[1], c.num_people_with_ds[0], c.num_people_with_ds[2], 0];
+            let infected_ratio = ((c.num_infectious as f32 / c.total as f32) * 256.0) as u8;
+            let color = [infected_ratio, 0, 0, 0];
             pix.copy_from_slice(&color);
         }
     }
