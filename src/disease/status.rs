@@ -19,7 +19,7 @@ pub struct DiseaseStatus {
 
 impl DiseaseStatus {
     pub fn new(rng: &mut StdRng) -> DiseaseStatus {
-        if rng.gen::<f32>() < 0.999 {
+        if rng.gen::<f32>() < 0.9999 {
             DiseaseStatus {
                 state: State::Susceptible,
                 infected_for: 0,
