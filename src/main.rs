@@ -5,7 +5,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 use outbreak_sim::disease::State;
-use outbreak_sim::reporting::{create_report_file, add_metric};
+use outbreak_sim::reporting::{intialise_reporting_files, add_metric};
 use outbreak_sim::shared::types::TimeStep;
 use outbreak_sim::shared::TIME_STEPS_PER_DAY;
 
@@ -26,7 +26,7 @@ fn main() -> Result<(), Error> {
     let iterations_per_render: u32 = 30;
 
     let mut sim = outbreak_sim::Sim::new(model_name, true);
-    let mut report_writer = create_report_file("reports/".to_owned() + model_name, 1, true).unwrap();
+    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 1, true).unwrap();
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
