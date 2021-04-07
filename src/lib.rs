@@ -41,7 +41,7 @@ impl Sim<Uniform> {
     // TODO Builder pattern for input params?
     pub fn new(model_name: &str, load_fast_graph_from_disk: bool) -> Self {
         // set_up_global_params();
-        let bytes = read_buffer(&*("python/synthetic_population/output/".to_string() + model_name + ".txt"));
+        let bytes = read_buffer(&*("python/synthetic_environments/output/".to_string() + model_name + ".txt"));
         let transmission_chance = 0.01 * 24.0 / TIME_STEPS_PER_DAY as f32;
         let mixing_strategy = Uniform { transmission_chance };
         let model = get_root_as_model(&bytes);

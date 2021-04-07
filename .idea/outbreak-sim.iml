@@ -6,10 +6,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/python/venv" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
-      <excludeFolder url="file://$MODULE_DIR$/python/data/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/synthetic_environments/data/.ipynb_checkpoints" />
       <excludeFolder url="file://$MODULE_DIR$/python/.ipynb_checkpoints" />
       <excludeFolder url="file://$MODULE_DIR$/python/synthetic_population/.ipynb_checkpoints" />
       <excludeFolder url="file://$MODULE_DIR$/python/generated" />
+      <excludeFolder url="file://$MODULE_DIR$/python/synthetic_environments/spikes/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/synthetic_environments/data" />
+      <excludeFolder url="file://$MODULE_DIR$/assorted" />
+      <excludeFolder url="file://$MODULE_DIR$/fast_paths" />
     </content>
     <orderEntry type="jdk" jdkName="3.8 @ Ubuntu (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
