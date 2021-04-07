@@ -1,6 +1,6 @@
 use rand::rngs::StdRng;
 use rand::Rng;
-use crate::shared::TIME_STEPS_PER_DAY;
+use crate::shared::{TIME_STEPS_PER_DAY, SEED_INFECTION_CHANCE};
 use crate::shared::types::TimeStep;
 
 // Infection and Disease Progression
@@ -19,7 +19,7 @@ pub struct DiseaseStatus {
 
 impl DiseaseStatus {
     pub fn new(rng: &mut StdRng) -> DiseaseStatus {
-        if rng.gen::<f32>() < 0.9999 {
+        if rng.gen::<f32>() > SEED_INFECTION_CHANCE {
             DiseaseStatus {
                 state: State::Susceptible,
                 infected_for: 0,

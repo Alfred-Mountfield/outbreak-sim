@@ -26,7 +26,7 @@ fn main() -> Result<(), Error> {
     let iterations_per_render: u32 = 30;
 
     let mut sim = outbreak_sim::Sim::new(model_name, true);
-    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 1, true).unwrap();
+    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 1, true, &sim).unwrap();
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();

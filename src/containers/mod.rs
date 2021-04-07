@@ -9,7 +9,7 @@ use crate::shared::types::TimeStep;
 pub struct Container<M: MixingStrategy> {
     pub pos: Vec2,
     pub inhabitants: Vec<u32>,
-    mixing_strategy: M,
+    pub mixing_strategy: M,
     last_update: TimeStep,
 }
 
