@@ -8,6 +8,7 @@ use outbreak_sim::disease::State;
 use outbreak_sim::reporting::{intialise_reporting_files, add_metric};
 use outbreak_sim::shared::types::TimeStep;
 use outbreak_sim::shared::TIME_STEPS_PER_DAY;
+use std::path::Path;
 
 const SCREEN_WIDTH: u32 = 950;
 const SCREEN_HEIGHT: u32 = 950;
@@ -18,15 +19,14 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    // let model_name = "model_tower_hamlets";
-    let model_name = "model_greater_manchester";
-    // let model_name = "model_london_se_commuter_ring";
+    let synthetic_environment_dir = Path::new("python/synthetic_environments/examples");
+    let model_name = "greater_manchester";
 
     let mut time_step: TimeStep = 0;
     let iterations_per_render: u32 = 30;
 
-    let mut sim = outbreak_sim::Sim::new(model_name, true);
-    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 1, true, &sim).unwrap();
+    let mut sim = outbreak_sim::Sim::new(synthetic_environment_dir, model_name, true);
+    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 5, true, &sim).unwrap();
 
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();

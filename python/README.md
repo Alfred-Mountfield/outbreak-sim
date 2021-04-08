@@ -7,15 +7,19 @@
 
 ## Setup:
 
-* Ensure you've installed flatc and ran `.\codegen.sh` as described in the parent directory README
-    
-* Using a version of python greater than 3.8, run:
-    * `python -m venv venv`
-    
-    * `. .\venv\bin\activate`
+### For Unix-based systems
 
+* Ensure you've installed flatc and ran `.\codegen.sh` as described in the parent directory README
+* Using a version of Python greater than 3.8, run:
+    * `python -m venv venv`
+    * `. .\venv\bin\activate`
     * `python -m pip install -r requirements.txt`
-    
+
+### For Windows
+
+* It's recommended to install Windows Subsystem for Linux (WSL) and follow the instructions above, it might be possible 
+  to run some of Python modules on Windows however the spatial dependencies like GDAL can be difficult to get working 
+  and are currently not tested or supported for this project.
 
 ## Usage
 

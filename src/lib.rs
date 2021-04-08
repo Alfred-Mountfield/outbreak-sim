@@ -15,6 +15,7 @@ use crate::disease::{MixingStrategy, Uniform};
 use crate::events::Events;
 use crate::routing::{GranularGrid, nodes_to_granular_grid};
 use crate::shared::TIME_STEPS_PER_DAY;
+use std::path::PathBuf;
 
 // TODO Revisit public access
 pub mod agents;
@@ -34,17 +35,23 @@ pub struct Sim<M: MixingStrategy> {
     pub containers: Containers<M>,
     pub bounds: Bounds,
     pub fast_graph: FastGraph,
-    pub transit_granular_grid: GranularGrid<usize>
+    pub transit_granular_grid: GranularGrid<usize>,
 }
 
 impl Sim<Uniform> {
     // TODO Builder pattern for input params?
-    pub fn new(model_name: &str, load_fast_graph_from_disk: bool) -> Self {
+    pub fn new<P>(synthetic_environment_dir: P, model_name: &str, load_fast_graph_from_disk: bool) -> Self
+        where P: Into<PathBuf>
+    {
         // set_up_global_params();
-        let bytes = read_buffer(&*("python/synthetic_environments/output/".to_string() + model_name + ".txt"));
+        let mut synthetic_environment_file = synthetic_environment_dir.into();
+        synthetic_environment_file.push(model_name);
+        synthetic_environment_file.set_extension("txt");
+        let bytes = read_buffer(synthetic_environment_file.as_path());
+        let model = get_root_as_model(&bytes);
+
         let transmission_chance = 0.01 * 24.0 / TIME_STEPS_PER_DAY as f32;
         let mixing_strategy = Uniform { transmission_chance };
-        let model = get_root_as_model(&bytes);
         // TODO Ensure that this is non-inclusive
         let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise
 
