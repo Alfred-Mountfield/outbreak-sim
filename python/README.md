@@ -17,14 +17,14 @@
 
 ### For Windows
 
-* It's recommended to install Windows Subsystem for Linux (WSL) and follow the instructions above, it might be possible 
-  to run some of Python modules on Windows however the spatial dependencies like GDAL can be difficult to get working 
+* It's recommended to install Windows Subsystem for Linux (WSL) and follow the instructions above, it might be possible
+  to run some of Python modules on Windows however the spatial dependencies like GDAL can be difficult to get working
   and are currently not tested or supported for this project.
 
 ## Usage
 
 * Activate the virtual environment with `. .\venv\bin\activate`
-  
+
 * Run: `jupyter-lab`
 
 * Follow instructions in either:
