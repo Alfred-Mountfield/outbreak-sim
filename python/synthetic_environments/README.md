@@ -25,7 +25,8 @@ TODO Description
 * In Jupyter open up the [population_gen.ipynb](population_gen.ipynb) notebook
 
 * Update the boundary, and download a osm.pbf [bbbike](https://extract.bbbike.org/) if it crosses normal geographic
-  boundaries, otherwise use pyrosm to automatically download one like "Greater London"
+  boundaries, otherwise use Pyrosm to automatically download one from [Geofabrik](http://download.geofabrik.de/) like "
+  Greater London"
 
 * TODO WIP
 

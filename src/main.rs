@@ -19,8 +19,8 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let synthetic_environment_dir = Path::new("python/synthetic_environments/examples");
-    let model_name = "greater_manchester";
+    let synthetic_environment_dir = Path::new("python/synthetic_environments/output");
+    let model_name = "london_se_commuter_ring";
 
     let mut time_step: TimeStep = 0;
     let iterations_per_render: u32 = 30;

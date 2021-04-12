@@ -4,7 +4,7 @@ use nonmax::NonMaxU64;
 use rand::{Rng, thread_rng};
 use rand::seq::{IteratorRandom, SliceRandom};
 
-use crate::Bounds;
+use crate::{Bounds, Vec2};
 use crate::disease::MixingStrategy;
 use crate::flatbuffer::TransitGraph;
 use crate::containers::Containers;
@@ -30,13 +30,18 @@ pub enum DirectRoutingType {
 }
 
 #[inline]
+pub fn distance_f32(p1: Vec2, p2: Vec2) -> f32 {
+    ((p2.x() - p1.x()).powi(2) + (p2.y() - p1.y()).powi(2)).sqrt()
+}
+
+#[inline]
 pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type: DirectRoutingType,
                                         from_container_idx: NonMaxU64, to_container_idx: NonMaxU64) -> TimeStep
     where M: MixingStrategy
 {
     let p1 = containers.get(from_container_idx.get()).unwrap().pos;
     let p2 = containers.get(to_container_idx.get()).unwrap().pos;
-    let dist = ((p2.x() - p1.x()).powi(2) + (p2.y() - p1.y()).powi(2)).sqrt();
+    let dist = distance_f32(p1, p2);
 
     (dist / match routing_type {
         DirectRoutingType::Walking => {
