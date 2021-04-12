@@ -31,10 +31,6 @@ name = "routing"
 harness = false
 
 [[bench]]
-name = "transmission"
-harness = false
-
-[[bench]]
 name = "iterations"
 harness = false
 
