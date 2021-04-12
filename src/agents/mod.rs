@@ -7,7 +7,7 @@ use crate::flatbuffer::{Model};
 use crate::containers::Containers;
 use nonmax::NonMaxU64;
 
-
+#[derive(Clone)]
 pub struct Agents {
     pub num_agents: u32,
     pub household_container: Vec<u64>,

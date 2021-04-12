@@ -4,7 +4,7 @@ use crate::shared::{TIME_STEPS_PER_DAY, SEED_INFECTION_CHANCE};
 use crate::shared::types::TimeStep;
 
 // Infection and Disease Progression
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum State {
     Susceptible,
     Presymptomatic,
@@ -12,6 +12,7 @@ pub enum State {
     Recovered,
 }
 
+#[derive(Clone, Copy)]
 pub struct DiseaseStatus {
     pub state: State,
     infected_for: TimeStep, // How long the infection has lasted until now / recovery / death

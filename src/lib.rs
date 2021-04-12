@@ -29,6 +29,7 @@ mod flatbuffer;
 
 // TODO static Cell<> for global params
 
+// TODO derive Clone when FastGraphs updates
 pub struct Sim<M: MixingStrategy> {
     pub agents: Agents,
     pub events: Events,

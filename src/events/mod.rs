@@ -1,18 +1,19 @@
+use fast_paths::{FastGraph, PathCalculator};
 use rand::{Rng, thread_rng};
 
 use crate::agents::Agents;
-use crate::disease::MixingStrategy;
-use crate::events::event::{Event, EventType};
-use crate::events::event_index::{EventIndex, Update, VecDequeMutExt};
 use crate::containers::Containers;
+use crate::disease::MixingStrategy;
+pub use crate::events::event::{Event, EventType};
+use crate::events::event_index::{EventIndex, Update, VecDequeMutExt};
+use crate::routing::GranularGrid;
 use crate::shared::TIME_STEPS_PER_DAY;
 use crate::shared::types::TimeStep;
-use fast_paths::{PathCalculator, FastGraph};
-use crate::routing::GranularGrid;
 
 mod event;
 mod event_index;
 
+#[derive(Clone)]
 pub struct Events {
     event_index: EventIndex,
 }
@@ -29,7 +30,7 @@ impl Events {
                 Event {
                     agent_idx: agent_idx as u32,
                     end_time_step: tmp_weighted_commute_time(&mut rng),
-                    event_type: EventType::EnterContainer(container_idx.unwrap())
+                    event_type: EventType::EnterContainer(container_idx.unwrap()),
                 }
             })
             .for_each(|event| {
@@ -41,7 +42,7 @@ impl Events {
         }
     }
 
-    pub fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>, transit_grid: &GranularGrid<usize>, 
+    pub fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>, transit_grid: &GranularGrid<usize>,
                      fast_graph: &FastGraph, transit_path_calculator: &mut PathCalculator) where M: MixingStrategy {
         self.event_index.update(time_step, agents, containers, transit_grid, fast_graph, transit_path_calculator);
     }

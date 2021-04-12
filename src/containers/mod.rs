@@ -6,6 +6,7 @@ use crate::flatbuffer::Vec2;
 use crate::shared::types::TimeStep;
 
 /// A Spatial Area where agents spend time and mix
+#[derive(Clone)]
 pub struct Container<M: MixingStrategy> {
     pub pos: Vec2,
     pub inhabitants: Vec<u32>,
@@ -32,6 +33,7 @@ impl<M: MixingStrategy> Container<M> {
     }
 }
 
+#[derive(Clone)]
 pub struct Containers<M: MixingStrategy> {
     elements: Vec<Container<M>>,
     num_households: u32,

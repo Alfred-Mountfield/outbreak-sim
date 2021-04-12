@@ -39,5 +39,5 @@ name = "iterations"
 harness = false
 
 [[bench]]
-name = "activity_queue"
+name = "event_loop"
 harness = false
