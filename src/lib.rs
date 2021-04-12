@@ -71,13 +71,6 @@ impl Sim<Uniform> {
             }
         };
 
-        let workplace_indices = model.agents().workplace_index().safe_slice();
-        let num_commuting_agents = workplace_indices.iter()
-            .filter(|&workplace_idx| {
-                *workplace_idx != u32::MAX
-            }).count();
-        println!("{} Agents with a workplace", num_commuting_agents);
-
         let transit_granular_grid = nodes_to_granular_grid(&model.transit_graph(), &bounds, 100);
 
         Self {
