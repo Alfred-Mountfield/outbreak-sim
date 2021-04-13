@@ -26,7 +26,7 @@ fn main() -> Result<(), Error> {
     let iterations_per_render: u32 = 30;
 
     let mut sim = outbreak_sim::Sim::new(synthetic_environment_dir, model_name, true);
-    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 2, true, &sim).unwrap();
+    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 0, true, &sim).unwrap();
 
     println!("{} Agents with a workplace", sim.agents.occupational_container.iter().filter(|idx| idx.is_some()).count());
 
