@@ -36,7 +36,7 @@ impl<M: MixingStrategy> Container<M> {
 #[derive(Clone)]
 pub struct Containers<M: MixingStrategy> {
     elements: Vec<Container<M>>,
-    num_households: u32,
+    pub(crate) num_households: u32,
 }
 
 struct DiseaseStatusPointer(*mut DiseaseStatus);

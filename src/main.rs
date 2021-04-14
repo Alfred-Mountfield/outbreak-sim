@@ -5,10 +5,11 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 use outbreak_sim::disease::State;
-use outbreak_sim::reporting::{intialise_reporting_files, add_metric};
+use outbreak_sim::reporting::{intialise_reporting_files, write_intermediary_metric, write_concluding_metrics};
 use outbreak_sim::shared::types::TimeStep;
 use outbreak_sim::shared::TIME_STEPS_PER_DAY;
 use std::path::Path;
+use std::time::Instant;
 
 const SCREEN_WIDTH: u32 = 950;
 const SCREEN_HEIGHT: u32 = 950;
@@ -19,14 +20,14 @@ mod graphics;
 
 
 fn main() -> Result<(), Error> {
-    let synthetic_environment_dir = Path::new("python/synthetic_environments/output");
-    let model_name = "london_se_commuter_ring";
+    let synthetic_environment_dir = Path::new("python/synthetic_environments/examples");
+    let model_name = "isle_of_wight";
 
     let mut time_step: TimeStep = 0;
     let iterations_per_render: u32 = 30;
 
     let mut sim = outbreak_sim::Sim::new(synthetic_environment_dir, model_name, true);
-    let mut report_writer = intialise_reporting_files("reports/".to_owned() + model_name, 0, true, &sim).unwrap();
+    let (mut intermediary_report_writer, concluding_report_file) = intialise_reporting_files("reports/".to_owned() + model_name, 0, true, &sim).unwrap();
 
     println!("{} Agents with a workplace", sim.agents.occupational_container.iter().filter(|idx| idx.is_some()).count());
 
@@ -49,7 +50,16 @@ fn main() -> Result<(), Error> {
     };
     let mut world = graphics::WorldGrid::new_empty(WORLD_HEIGHT as usize, WORLD_WIDTH as usize);
 
+    let start_time = Instant::now();
     event_loop.run(move |event, _, control_flow| {
+        // User-ended simulation
+        if let Event::LoopDestroyed = event {
+            write_concluding_metrics(&concluding_report_file, time_step,
+                                     Instant::now().duration_since(start_time),
+                                     synthetic_environment_dir.join(model_name.to_owned() + ".txt")
+            ).unwrap()
+        }
+
         // Draw the current frame
         if let Event::RedrawRequested(_) = event {
             world.draw(pixels.get_frame());
@@ -89,12 +99,15 @@ fn main() -> Result<(), Error> {
 
             // Update internal state and request a redraw
             for _ in 0..iterations_per_render {
-                sim.update(time_step);
+                if sim.update(time_step).is_err() {
+                    *control_flow = ControlFlow::Exit;
+                    return;
+                }
                 time_step += 1;
             }
             // println!("Took {:.2}s for {} steps", time.elapsed().as_secs_f64(), increment);
 
-            add_metric(&mut report_writer, time_step, &sim.agents).unwrap();
+            write_intermediary_metric(&mut intermediary_report_writer, time_step, &sim.agents).unwrap();
 
             // time = Instant::now();
             world.update(&sim);

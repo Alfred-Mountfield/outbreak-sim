@@ -1,3 +1,6 @@
+use std::fmt;
+use std::path::PathBuf;
+
 use fast_paths::FastGraph;
 
 pub use flatbuffer::Bounds;
@@ -14,8 +17,7 @@ use crate::containers::Containers;
 use crate::disease::{MixingStrategy, Uniform};
 use crate::events::Events;
 use crate::routing::{GranularGrid, nodes_to_granular_grid};
-use crate::shared::TIME_STEPS_PER_DAY;
-use std::path::PathBuf;
+use crate::shared::{TIME_STEPS_PER_DAY, SIMULATION_LENGTH_IN_DAYS};
 
 // TODO Revisit public access
 pub mod agents;
@@ -27,7 +29,14 @@ pub mod events;
 pub mod reporting;
 mod flatbuffer;
 
-// TODO static Cell<> for global params
+#[derive(Debug, Clone)]
+pub struct EndOfSimulationError;
+
+impl fmt::Display for EndOfSimulationError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "simulation has reached the maximum {} days", TIME_STEPS_PER_DAY)
+    }
+}
 
 // TODO derive Clone when FastGraphs updates
 pub struct Sim<M: MixingStrategy> {
@@ -45,8 +54,7 @@ impl Sim<Uniform> {
         where P: Into<PathBuf>
     {
         // set_up_global_params();
-        let mut synthetic_environment_file = synthetic_environment_dir.into();
-        synthetic_environment_file.push(model_name);
+        let mut synthetic_environment_file = synthetic_environment_dir.into().join(model_name);
         synthetic_environment_file.set_extension("txt");
         let bytes = read_buffer(synthetic_environment_file.as_path());
         let model = get_root_as_model(&bytes);
@@ -83,8 +91,13 @@ impl Sim<Uniform> {
         }
     }
 
-    pub fn update(&mut self, time_step: TimeStep) {
+    pub fn update(&mut self, time_step: TimeStep) -> Result<(), EndOfSimulationError> {
+        if SIMULATION_LENGTH_IN_DAYS.is_some() && time_step >= SIMULATION_LENGTH_IN_DAYS.unwrap() * TIME_STEPS_PER_DAY {
+            return Err(EndOfSimulationError)
+        }
         let mut fast_path_calculator = fast_paths::create_calculator(&self.fast_graph);
         self.events.update(time_step, &mut self.agents, &mut self.containers, &self.transit_granular_grid, &self.fast_graph, &mut fast_path_calculator);
+
+        Ok(())
     }
 }
