@@ -7,3 +7,4 @@ venv/
 /fast_paths/
 /python/synthetic_environments/pickles/
 /python/synthetic_environments/output/
+/reports/

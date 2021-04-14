@@ -14,6 +14,12 @@
       <excludeFolder url="file://$MODULE_DIR$/python/synthetic_environments/data" />
       <excludeFolder url="file://$MODULE_DIR$/assorted" />
       <excludeFolder url="file://$MODULE_DIR$/fast_paths" />
+      <excludeFolder url="file://$MODULE_DIR$/python/report_analysis/graphs/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/report_analysis/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/synthetic_environments/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/python/synthetic_environments/output" />
+      <excludeFolder url="file://$MODULE_DIR$/python/synthetic_environments/pickles" />
+      <excludeFolder url="file://$MODULE_DIR$/reports" />
     </content>
     <orderEntry type="jdk" jdkName="3.8 @ Ubuntu (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

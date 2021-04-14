@@ -133,7 +133,7 @@ pub fn write_concluding_metrics(report_file: &File, time_step: TimeStep, exec_ti
     let metric = ConcludingMetric {
         total_time_steps: time_step,
         simulation_execution_time_in_secs: exec_time.as_secs_f64(),
-        synthetic_environment_path
+        synthetic_environment_path: synthetic_environment_path.canonicalize()?
     };
     serde_json::to_writer_pretty(report_file, &metric)?;
     Ok(())
