@@ -1,16 +1,16 @@
+use std::path::Path;
+
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main, Throughput};
 use fast_paths::FastGraph;
+use nonmax::NonMaxU64;
+use rand::{Rng, thread_rng};
+use rand::distributions::Standard;
 use rayon::prelude::*;
 
 use outbreak_sim::{get_root_as_model, read_buffer, Vec2};
-use outbreak_sim::disease::{MixingStrategy};
-use outbreak_sim::routing::{GranularGrid, nodes_to_granular_grid, sample_nearby_from_grid, calculate_direct_commute_time, DirectRoutingType, distance_f32};
+use outbreak_sim::disease::MixingStrategy;
+use outbreak_sim::routing::{calculate_direct_commute_time, DirectRoutingType, distance_f32, GranularGrid, nodes_to_granular_grid, sample_nearby_from_grid};
 use outbreak_sim::Sim;
-use rand::{thread_rng, Rng};
-use rand::distributions::Standard;
-use std::path::Path;
-use nonmax::NonMaxU64;
-
 
 #[inline]
 fn choose_nearby_home_transit_node_sequential(agent_positions: &[Vec2], transit_node_grid: &GranularGrid<usize>) {
@@ -44,6 +44,7 @@ fn choose_and_calc_workplace_transit_commute(agent_positions: &[Vec2], workplace
                 path_calculator.calc_path(&fast_graph, src_node[0], dest_node[0]);
             });
 }
+
 #[inline]
 fn calc_workplace_direct_commute<M: MixingStrategy>(sim: &Sim<M>, household_containers: &[NonMaxU64], occupational_containers: &[NonMaxU64]) {
     household_containers.par_iter().zip(occupational_containers.par_iter())

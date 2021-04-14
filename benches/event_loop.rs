@@ -1,6 +1,7 @@
+use std::path::Path;
+
 use criterion::{BatchSize, BenchmarkId, Criterion, criterion_group, criterion_main, Throughput};
 
-use std::path::Path;
 use outbreak_sim::shared::TIME_STEPS_PER_DAY;
 
 // TODO When global param modification is added, make sure setup is done in bench for consistency

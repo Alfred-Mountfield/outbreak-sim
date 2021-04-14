@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput, BenchmarkId};
+use criterion::{BenchmarkId, black_box, Criterion, criterion_group, criterion_main, Throughput};
 
 struct U32Bool {
     val: u32,

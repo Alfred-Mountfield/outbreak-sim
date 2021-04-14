@@ -1,4 +1,4 @@
-use std::cmp::{min};
+use std::cmp::min;
 use std::iter;
 use std::ops::{Index, IndexMut};
 
@@ -95,7 +95,7 @@ mod tests {
 
         assert_eq!(grid.rows, rows);
         assert_eq!(grid.cols, expected_cols);
-        assert_eq!(grid.idx_to_coord_ratio, expected_ratio);
+        assert!((grid.idx_to_coord_ratio - expected_ratio).abs() < f32::EPSILON);
         assert_eq!(grid.cells.len(), expected_len);
     }
 
