@@ -7,7 +7,7 @@ use crate::shared::types::TimeStep;
 #[derive(PartialEq, Clone, Copy)]
 pub enum State {
     Susceptible,
-    Presymptomatic,
+    Exposed,
     Infectious,
     Recovered,
 }
@@ -36,13 +36,13 @@ impl DiseaseStatus {
     #[inline]
     pub fn infect(&mut self) {
         debug_assert!(self.state == State::Susceptible);
-        self.state = State::Presymptomatic;
+        self.state = State::Exposed;
         self.infected_for = 0;
     }
 
     #[inline]
     pub fn progress_infection(&mut self, time_steps: TimeStep) {
-        debug_assert!(self.state == State::Presymptomatic || self.state == State::Infectious);
+        debug_assert!(self.state == State::Exposed || self.state == State::Infectious);
         self.infected_for += time_steps;
 
         // TODO Update to not be constant

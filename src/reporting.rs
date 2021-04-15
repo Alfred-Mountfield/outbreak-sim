@@ -19,8 +19,8 @@ use crate::shared::types::TimeStep;
 struct IntermediaryMetric {
     time_step: TimeStep,
     num_susceptible: usize,
-    num_presymptomatic: usize,
-    num_infected: usize,
+    num_exposed: usize,
+    num_infectious: usize,
     num_recovered: usize,
 }
 
@@ -104,12 +104,12 @@ fn create_concluding_report_file(mut report_path: PathBuf, replace: bool) -> Res
 
 #[inline]
 pub fn write_intermediary_metric(report_writer: &mut Writer<File>, time_step: TimeStep, agents: &Agents) -> Result<(), io::Error> {
-    let (mut num_susceptible, mut num_presymptomatic, mut num_infected, mut num_recovered) = (0, 0, 0, 0);
+    let (mut num_susceptible, mut num_exposed, mut num_infectious, mut num_recovered) = (0, 0, 0, 0);
     for status in &agents.disease_statuses {
         match status.state {
             State::Susceptible => { num_susceptible += 1 }
-            State::Presymptomatic => { num_presymptomatic += 1 }
-            State::Infectious => { num_infected += 1 }
+            State::Exposed => { num_exposed += 1 }
+            State::Infectious => { num_infectious += 1 }
             State::Recovered => { num_recovered += 1 }
         }
     }
@@ -117,8 +117,8 @@ pub fn write_intermediary_metric(report_writer: &mut Writer<File>, time_step: Ti
     let metric = IntermediaryMetric {
         time_step,
         num_susceptible,
-        num_presymptomatic,
-        num_infected,
+        num_exposed,
+        num_infectious,
         num_recovered
     };
 

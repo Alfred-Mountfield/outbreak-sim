@@ -8,7 +8,7 @@ use outbreak_sim::disease::MixingStrategy;
 struct Cell {
     total: u32,
     num_susceptible: u32,
-    num_presymptomatic: u32,
+    num_exposed: u32,
     num_infectious: u32,
     num_recovered: u32
 }
@@ -60,8 +60,8 @@ impl WorldGrid {
                     disease::State::Susceptible => {
                         cell_stats.num_susceptible += 1;
                     },
-                    disease::State::Presymptomatic => {
-                        cell_stats.num_presymptomatic += 1;
+                    disease::State::Exposed => {
+                        cell_stats.num_exposed += 1;
                     }
                     disease::State::Infectious => {
                         cell_stats.num_infectious += 1;
