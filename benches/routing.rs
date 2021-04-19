@@ -74,7 +74,9 @@ fn bench_choose_nearby_nodes(c: &mut Criterion) {
     let mut group = c.benchmark_group("Choose Nearby Nodes");
 
     for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
-        let sim = outbreak_sim::Sim::new(&Path::new("python/synthetic_environments/examples"), model_name, true);
+        let sim = outbreak_sim::SimBuilder::new(&Path::new("python/synthetic_environments/examples"), model_name)
+            .load_fast_graph_from_disk(true)
+            .build();
         let agent_positions: Vec<Vec2> = sim.agents.household_container.iter()
             .zip(sim.agents.occupational_container.iter())
             .filter_map(|(&household_idx, occupational_idx)| {
@@ -104,7 +106,9 @@ fn bench_route_transit_commutes(c: &mut Criterion) {
     let mut group = c.benchmark_group("Commute Routing by Transit");
 
     for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
-        let sim = outbreak_sim::Sim::new(&Path::new("python/synthetic_environments/examples"), model_name, true);
+        let sim = outbreak_sim::SimBuilder::new(&Path::new("python/synthetic_environments/examples"), model_name)
+            .load_fast_graph_from_disk(true)
+            .build();
         let (agent_positions, workplace_positions): (Vec<Vec2>, Vec<Vec2>) = sim.agents.household_container.iter()
             .zip(sim.agents.occupational_container.iter())
             .filter_map(|(&household_idx, occupational_idx)| {
@@ -133,7 +137,9 @@ fn bench_direct_commute_calc(c: &mut Criterion) {
     let mut group = c.benchmark_group("Direct Commute Routing (non-transit)");
 
     for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
-        let sim = outbreak_sim::Sim::new(&Path::new("python/synthetic_environments/examples"), model_name, true);
+        let sim = outbreak_sim::SimBuilder::new(&Path::new("python/synthetic_environments/examples"), model_name)
+            .load_fast_graph_from_disk(true)
+            .build();
         let (household_containers, occupational_containers): (Vec<NonMaxU64>, Vec<NonMaxU64>) = sim.agents.household_container.iter()
             .zip(sim.agents.occupational_container.iter())
             .filter_map(|(&household_container_idx, &occupational_container_idx)| {
