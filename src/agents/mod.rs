@@ -1,11 +1,10 @@
-use rand::rngs::StdRng;
-use rand::SeedableRng;
+use nonmax::NonMaxU64;
+use rand::thread_rng;
 
+use crate::containers::Containers;
 use crate::disease;
 use crate::disease::{DiseaseStatus, MixingStrategy};
-use crate::flatbuffer::{Model};
-use crate::containers::Containers;
-use nonmax::NonMaxU64;
+use crate::flatbuffer::Model;
 
 #[derive(Clone)]
 pub struct Agents {
@@ -23,7 +22,7 @@ impl Agents {
         let household_indices = model.agents().household_index();
         let workplace_indices = model.agents().workplace_index();
 
-        let mut rng = StdRng::seed_from_u64(32);
+        let mut rng = thread_rng();
         let num_agents = household_indices.len() as u32;
 
         let (household_container, workplace_container) = household_indices.iter().zip(workplace_indices.iter())

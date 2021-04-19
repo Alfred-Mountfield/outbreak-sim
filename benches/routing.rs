@@ -57,7 +57,7 @@ fn calc_workplace_direct_commute<M: MixingStrategy>(sim: &Sim<M>, household_cont
 fn bench_build_granular_grid(c: &mut Criterion) {
     let mut group = c.benchmark_group("Granular Grid");
 
-    for &model_name in ["tower_hamlets", "greater_manchester"].iter() {
+    for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
         for rows in [50u32, 100u32, 200u32].iter() {
             let bytes = read_buffer(("python/synthetic_environments/examples/".to_string() + model_name + ".txt").as_ref());
             let model = get_root_as_model(&bytes);
@@ -73,7 +73,7 @@ fn bench_build_granular_grid(c: &mut Criterion) {
 fn bench_choose_nearby_nodes(c: &mut Criterion) {
     let mut group = c.benchmark_group("Choose Nearby Nodes");
 
-    for &model_name in ["tower_hamlets", "greater_manchester"].iter() {
+    for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
         let sim = outbreak_sim::Sim::new(&Path::new("python/synthetic_environments/examples"), model_name, true);
         let agent_positions: Vec<Vec2> = sim.agents.household_container.iter()
             .zip(sim.agents.occupational_container.iter())
@@ -103,7 +103,7 @@ fn bench_choose_nearby_nodes(c: &mut Criterion) {
 fn bench_route_transit_commutes(c: &mut Criterion) {
     let mut group = c.benchmark_group("Commute Routing by Transit");
 
-    for &model_name in ["tower_hamlets", "greater_manchester"].iter() {
+    for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
         let sim = outbreak_sim::Sim::new(&Path::new("python/synthetic_environments/examples"), model_name, true);
         let (agent_positions, workplace_positions): (Vec<Vec2>, Vec<Vec2>) = sim.agents.household_container.iter()
             .zip(sim.agents.occupational_container.iter())
@@ -132,7 +132,7 @@ fn bench_route_transit_commutes(c: &mut Criterion) {
 fn bench_direct_commute_calc(c: &mut Criterion) {
     let mut group = c.benchmark_group("Direct Commute Routing (non-transit)");
 
-    for &model_name in ["tower_hamlets", "greater_manchester"].iter() {
+    for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
         let sim = outbreak_sim::Sim::new(&Path::new("python/synthetic_environments/examples"), model_name, true);
         let (household_containers, occupational_containers): (Vec<NonMaxU64>, Vec<NonMaxU64>) = sim.agents.household_container.iter()
             .zip(sim.agents.occupational_container.iter())

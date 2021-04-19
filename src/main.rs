@@ -1,15 +1,16 @@
+use std::time::Instant;
+
 use pixels::{Error, Pixels, SurfaceTexture};
+use structopt::StructOpt;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, VirtualKeyCode};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
+
 use outbreak_sim::disease::State;
-use outbreak_sim::reporting::{intialise_reporting_files, write_intermediary_metric, write_concluding_metrics};
+use outbreak_sim::reporting::{intialise_reporting_files, write_concluding_metrics, write_intermediary_metric};
 use outbreak_sim::shared::types::TimeStep;
-use outbreak_sim::shared::TIME_STEPS_PER_DAY;
-use std::path::Path;
-use std::time::Instant;
 
 const SCREEN_WIDTH: u32 = 950;
 const SCREEN_HEIGHT: u32 = 950;
@@ -18,16 +19,34 @@ const WORLD_HEIGHT: u32 = 500;
 
 mod graphics;
 
+/// Search for a pattern in a file and display the lines that contain it.
+#[derive(StructOpt)]
+struct Cli {
+    /// The path to the directory containing the model
+    #[structopt(parse(from_os_str))]
+    path: std::path::PathBuf,
+    /// The model name
+    model_name: String,
+    iteration: usize,
+}
+
 
 fn main() -> Result<(), Error> {
-    let synthetic_environment_dir = Path::new("python/synthetic_environments/examples");
-    let model_name = "tower_hamlets";
+    let args: Cli = Cli::from_args();
+    let synthetic_environment_dir = args.path.to_owned();
+    let model_name = args.model_name.to_owned();
 
     let mut time_step: TimeStep = 0;
+    let time_steps_per_day: u32 = 48;
     let iterations_per_render: u32 = 30;
 
-    let mut sim = outbreak_sim::Sim::new(synthetic_environment_dir, model_name, true);
-    let (mut intermediary_report_writer, concluding_report_file) = intialise_reporting_files("reports/".to_owned() + model_name, 0, true, &sim).unwrap();
+    let mut sim = outbreak_sim::SimBuilder::new(&synthetic_environment_dir, &model_name)
+        .load_fast_graph_from_disk(true)
+        .time_steps_per_day(time_steps_per_day)
+        .build();
+
+
+    let (mut intermediary_report_writer, concluding_report_file) = intialise_reporting_files("reports/".to_owned() + &model_name, args.iteration, true).unwrap();
 
     println!("{} Agents with a workplace", sim.agents.occupational_container.iter().filter(|idx| idx.is_some()).count());
 
@@ -56,7 +75,7 @@ fn main() -> Result<(), Error> {
         if let Event::LoopDestroyed = event {
             write_concluding_metrics(&concluding_report_file, time_step,
                                      Instant::now().duration_since(start_time),
-                                     synthetic_environment_dir.join(model_name.to_owned() + ".txt")
+                                     synthetic_environment_dir.join(model_name.to_owned() + ".txt"),
             ).unwrap()
         }
 
@@ -90,8 +109,8 @@ fn main() -> Result<(), Error> {
             //     println!("Time step: {}", time_step);
             //     println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
             // }
-            if time_step % TIME_STEPS_PER_DAY == 0 {
-                println!("Day: {}", time_step / TIME_STEPS_PER_DAY);
+            if time_step % time_steps_per_day == 0 {
+                println!("Day: {}", time_step / time_steps_per_day);
                 println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
             }
 

@@ -6,10 +6,10 @@ use crate::agents::Agents;
 use crate::containers::Containers;
 use crate::disease::MixingStrategy;
 use crate::events::event::EventType::{EnterContainer, Travel};
-use crate::routing::{calculate_direct_commute_time, calculate_public_transit_commute_time, GranularGrid, RoutingType, DirectRoutingType};
+use crate::routing::{calculate_direct_commute_time, calculate_public_transit_commute_time, DirectRoutingType, GranularGrid, RoutingType};
 use crate::routing::DirectRoutingType::Driving;
-use crate::shared::TIME_STEPS_PER_DAY;
 use crate::shared::types::TimeStep;
+use crate::shared::get_time_steps_per_day;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Event {
@@ -46,7 +46,7 @@ impl Event {
 
                 Some(Event {
                     agent_idx: self.agent_idx,
-                    end_time_step: self.end_time_step + (TIME_STEPS_PER_DAY / 2),
+                    end_time_step: self.end_time_step + (get_time_steps_per_day() / 2),
                     event_type: Travel(TravelType {
                         from_container_idx,
                         to_container_idx,

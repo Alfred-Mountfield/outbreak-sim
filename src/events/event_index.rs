@@ -1,12 +1,13 @@
 use std::collections::VecDeque;
 
+use fast_paths::{FastGraph, PathCalculator};
+
 use crate::agents::Agents;
+use crate::containers::Containers;
 use crate::disease::MixingStrategy;
 use crate::events::event::Event;
-use crate::containers::Containers;
-use crate::shared::types::TimeStep;
-use fast_paths::{PathCalculator, FastGraph};
 use crate::routing::GranularGrid;
+use crate::shared::types::TimeStep;
 
 pub type EventIndex = VecDeque<Vec<Event>>;
 
@@ -17,7 +18,7 @@ pub trait Update {
 
 impl Update for EventIndex {
     fn update<M>(&mut self, time_step: TimeStep, agents: &mut Agents, containers: &mut Containers<M>, transit_grid: &GranularGrid<usize>,
-                 fast_graph: &FastGraph,  transit_path_calculator: &mut PathCalculator) where M: MixingStrategy {
+                 fast_graph: &FastGraph, transit_path_calculator: &mut PathCalculator) where M: MixingStrategy {
         if let Some(mut events) = self.pop_front() {
             events.drain(..).for_each(|event| {
                 debug_assert!(event.end_time_step == time_step);

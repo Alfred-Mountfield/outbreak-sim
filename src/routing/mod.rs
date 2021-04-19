@@ -1,17 +1,17 @@
 use std::cmp::{max, min};
 
+use fast_paths::{FastGraph, PathCalculator};
 use nonmax::NonMaxU64;
 use rand::{Rng, thread_rng};
 use rand::seq::{IteratorRandom, SliceRandom};
 
 use crate::{Bounds, Vec2};
+use crate::containers::Containers;
 use crate::disease::MixingStrategy;
 use crate::flatbuffer::TransitGraph;
-use crate::containers::Containers;
 pub use crate::routing::granular_grid::GranularGrid;
-use crate::shared::{CYCLING_SPEED, DRIVING_SPEED, WALKING_SPEED};
+use crate::shared::{get_cycling_speed, get_driving_speed, get_walking_speed};
 use crate::shared::types::TimeStep;
-use fast_paths::{PathCalculator, FastGraph};
 
 pub mod transit;
 mod granular_grid;
@@ -45,13 +45,13 @@ pub fn calculate_direct_commute_time<M>(containers: &Containers<M>, routing_type
 
     (dist / match routing_type {
         DirectRoutingType::Walking => {
-            WALKING_SPEED
+            get_walking_speed()
         }
         DirectRoutingType::Cycling => {
-            CYCLING_SPEED
+            get_cycling_speed()
         }
         DirectRoutingType::Driving => {
-            DRIVING_SPEED
+            get_driving_speed()
         }
     }) as TimeStep
 }

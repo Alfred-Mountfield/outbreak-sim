@@ -1,6 +1,6 @@
-use rand::rngs::StdRng;
 use rand::Rng;
-use crate::shared::{TIME_STEPS_PER_DAY, SEED_INFECTION_CHANCE};
+
+use crate::shared::{get_seed_infection_chance, get_time_steps_per_day};
 use crate::shared::types::TimeStep;
 
 // Infection and Disease Progression
@@ -19,16 +19,18 @@ pub struct DiseaseStatus {
 }
 
 impl DiseaseStatus {
-    pub fn new(rng: &mut StdRng) -> DiseaseStatus {
-        if rng.gen::<f32>() > SEED_INFECTION_CHANCE {
+    pub fn new<R>(rng: &mut R) -> DiseaseStatus
+        where R: Rng + ?Sized
+    {
+        if rng.gen::<f32>() > get_seed_infection_chance() {
             DiseaseStatus {
                 state: State::Susceptible,
                 infected_for: 0,
             }
         } else {
             DiseaseStatus {
-                state: State::Infectious,
-                infected_for: rng.gen_range(0..3),
+                state: State::Exposed,
+                infected_for: rng.gen_range(0..2),
             }
         }
     }
@@ -46,15 +48,17 @@ impl DiseaseStatus {
         self.infected_for += time_steps;
 
         // TODO Update to not be constant
-        if self.infected_for > 12 * TIME_STEPS_PER_DAY {
+        if self.infected_for > 12 * get_time_steps_per_day() {
             self.state = State::Recovered
         }
-        else if self.infected_for > 3 * TIME_STEPS_PER_DAY {
+        else if self.infected_for > 3 * get_time_steps_per_day() {
             self.state = State::Infectious
         }
     }
 }
 
-pub fn construct_disease_status_array(num_agents: u32, rng: &mut StdRng) -> Vec<DiseaseStatus> {
+pub fn construct_disease_status_array<R>(num_agents: u32, rng: &mut R) -> Vec<DiseaseStatus>
+    where R: Rng + ?Sized
+{
     (0..num_agents).map(|_| DiseaseStatus::new(rng)).collect()
 }

@@ -7,7 +7,7 @@ use crate::disease::MixingStrategy;
 pub use crate::events::event::{Event, EventType};
 use crate::events::event_index::{EventIndex, Update, VecDequeMutExt};
 use crate::routing::GranularGrid;
-use crate::shared::TIME_STEPS_PER_DAY;
+use crate::shared::get_time_steps_per_day;
 use crate::shared::types::TimeStep;
 
 mod event;
@@ -53,7 +53,7 @@ impl Events {
 fn tmp_weighted_commute_time<R>(rng: &mut R) -> TimeStep
     where R: Rng + ?Sized
 {
-    let time_steps_per_hour: TimeStep = TIME_STEPS_PER_DAY / 24;
+    let time_steps_per_hour: TimeStep = get_time_steps_per_day() / 24;
     // commute start times range from 4am to 11am
     let earliest = 4 * time_steps_per_hour;
     let time_steps_range = 7 * time_steps_per_hour;

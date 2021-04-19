@@ -2,16 +2,15 @@ use std::{fs, io};
 use std::error::Error;
 use std::fs::File;
 use std::io::ErrorKind;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::time::Duration;
 
 use csv::Writer;
 use serde::{Deserialize, Serialize};
 
-use crate::{Sim};
 use crate::agents::Agents;
-use crate::disease::{State, Uniform};
-use crate::shared::{SEED_INFECTION_CHANCE, TIME_STEPS_PER_DAY};
+use crate::disease::{State};
+use crate::shared::GLOBAL_PARAMS;
 use crate::shared::types::TimeStep;
 
 /// An insight into a simulation's state _during_ simulation
@@ -29,18 +28,11 @@ struct IntermediaryMetric {
 struct ConcludingMetric {
     total_time_steps: TimeStep,
     simulation_execution_time_in_secs: f64,
-    synthetic_environment_path: PathBuf
-}
-
-#[derive(Serialize, Deserialize)]
-struct Parameters {
-    time_steps_per_day: usize,
-    seed_infection_chance: f64,
-    transmission_chance: f64,
+    synthetic_environment_path: PathBuf,
 }
 
 #[inline]
-pub fn intialise_reporting_files<P>(out_dir: P, iteration: usize, replace: bool, sim: &Sim<Uniform>) -> Result<(Writer<File>, File), Box<dyn Error>>
+pub fn intialise_reporting_files<P>(out_dir: P, iteration: usize, replace: bool) -> Result<(Writer<File>, File), Box<dyn Error>>
     where P: Into<PathBuf>
 {
     let mut out_path = out_dir.into();
@@ -50,7 +42,7 @@ pub fn intialise_reporting_files<P>(out_dir: P, iteration: usize, replace: bool,
 
     fs::create_dir_all(&out_path)?;
 
-    create_param_file(out_path.clone(), replace, sim)?;
+    create_param_file(out_path.clone(), replace)?;
     let intermediary_report_writer = create_intermediary_report_file(out_path.clone(), replace)?;
     let concluding_report_file = create_concluding_report_file(out_path, replace)?;
 
@@ -58,7 +50,7 @@ pub fn intialise_reporting_files<P>(out_dir: P, iteration: usize, replace: bool,
 }
 
 #[inline]
-fn create_param_file(mut param_path: PathBuf, replace: bool, sim: &Sim<Uniform>) -> Result<(), Box<dyn Error>> {
+fn create_param_file(mut param_path: PathBuf, replace: bool) -> Result<(), Box<dyn Error>> {
     param_path.push("parameters");
     param_path.set_extension("json");
 
@@ -66,12 +58,7 @@ fn create_param_file(mut param_path: PathBuf, replace: bool, sim: &Sim<Uniform>)
         Err(io::Error::from(ErrorKind::AlreadyExists).into())
     } else {
         println!("Creating parameters file: {}", param_path.display());
-        serde_json::to_writer_pretty(&File::create(param_path)?, &Parameters {
-            time_steps_per_day: TIME_STEPS_PER_DAY as usize,
-            seed_infection_chance: SEED_INFECTION_CHANCE as f64,
-            // TODO, very hacky, update for more MixingStrategies when implemented
-            transmission_chance: sim.containers.get(0).unwrap().mixing_strategy.transmission_chance as f64,
-        })?;
+        serde_json::to_writer_pretty(&File::create(param_path)?, GLOBAL_PARAMS.get().unwrap())?;
         Ok(())
     }
 }
@@ -119,7 +106,7 @@ pub fn write_intermediary_metric(report_writer: &mut Writer<File>, time_step: Ti
         num_susceptible,
         num_exposed,
         num_infectious,
-        num_recovered
+        num_recovered,
     };
 
     report_writer.serialize(metric)?;
@@ -129,11 +116,11 @@ pub fn write_intermediary_metric(report_writer: &mut Writer<File>, time_step: Ti
 
 #[inline]
 pub fn write_concluding_metrics(report_file: &File, time_step: TimeStep, exec_time: Duration,
-                                   synthetic_environment_path: PathBuf) -> Result<(), io::Error> {
+                                synthetic_environment_path: PathBuf) -> Result<(), io::Error> {
     let metric = ConcludingMetric {
         total_time_steps: time_step,
         simulation_execution_time_in_secs: exec_time.as_secs_f64(),
-        synthetic_environment_path: synthetic_environment_path.canonicalize()?
+        synthetic_environment_path: synthetic_environment_path.canonicalize()?,
     };
     serde_json::to_writer_pretty(report_file, &metric)?;
     Ok(())
