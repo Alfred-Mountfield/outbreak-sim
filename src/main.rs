@@ -19,15 +19,25 @@ const WORLD_HEIGHT: u32 = 500;
 
 mod graphics;
 
-/// Search for a pattern in a file and display the lines that contain it.
-#[derive(StructOpt)]
+/// An Agent-based Simulation
+#[derive(StructOpt, Debug)]
 struct Cli {
     /// The path to the directory containing the model
     #[structopt(parse(from_os_str))]
     path: std::path::PathBuf,
     /// The model name
     model_name: String,
+    /// The iteration of the simulation run, used in output paths
     iteration: usize,
+    /// The number of time-steps per day of simulation
+    #[structopt(default_value="48", long)]
+    time_steps_per_day: u32,
+    /// The length of the simulation in days, leave blank for it to run until closed
+    #[structopt(long)]
+    sim_length_days: Option<u32>,
+    /// The number of time-steps to run the simulation for in between rendering a frame of the UI
+    #[structopt(default_value="10", long)]
+    iterations_per_render: u32
 }
 
 
@@ -37,14 +47,14 @@ fn main() -> Result<(), Error> {
     let model_name = args.model_name.to_owned();
 
     let mut time_step: TimeStep = 0;
-    let time_steps_per_day: u32 = 48;
-    let iterations_per_render: u32 = 30;
 
     let mut sim = outbreak_sim::SimBuilder::new(&synthetic_environment_dir, &model_name)
         .load_fast_graph_from_disk(true)
-        .time_steps_per_day(time_steps_per_day)
+        .sim_length_days(args.sim_length_days)
+        .time_steps_per_day(args.time_steps_per_day)
         .build();
 
+    println!("{:?}", args);
 
     let (mut intermediary_report_writer, concluding_report_file) = intialise_reporting_files("reports/".to_owned() + &model_name, args.iteration, true).unwrap();
 
@@ -109,24 +119,23 @@ fn main() -> Result<(), Error> {
             //     println!("Time step: {}", time_step);
             //     println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
             // }
-            if time_step % time_steps_per_day == 0 {
-                println!("Day: {}", time_step / time_steps_per_day);
+            if time_step % args.time_steps_per_day == 0 {
+                println!("Day: {}", time_step / args.time_steps_per_day);
                 println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
             }
 
             // let mut time = Instant::now();
 
             // Update internal state and request a redraw
-            for _ in 0..iterations_per_render {
+            for _ in 0..args.iterations_per_render {
                 if sim.update(time_step).is_err() {
                     *control_flow = ControlFlow::Exit;
                     return;
                 }
+                write_intermediary_metric(&mut intermediary_report_writer, time_step, &sim.agents).unwrap();
                 time_step += 1;
             }
             // println!("Took {:.2}s for {} steps", time.elapsed().as_secs_f64(), increment);
-
-            write_intermediary_metric(&mut intermediary_report_writer, time_step, &sim.agents).unwrap();
 
             // time = Instant::now();
             world.update(&sim);
