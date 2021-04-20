@@ -23,7 +23,7 @@ impl Default for GlobalSimParams {
         GlobalSimParams {
             time_steps_per_day: 48, // every half an hour
             sim_length_days: Some(60),
-            seed_infection_chance: 0.001,
+            seed_infection_chance: 0.01,
             walking_speed: 5.0 * 1000.0 * 24.0 / 48.0,
             cycling_speed: 23.5 * 1000.0 * 24.0 / 48.0,
             driving_speed: 60.0 * 1000.0 * 24.0 / 48.0,

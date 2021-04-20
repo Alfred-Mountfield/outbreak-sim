@@ -36,7 +36,10 @@ struct Cli {
     sim_length_days: Option<u32>,
     /// The number of time-steps to run the simulation for in between rendering a frame of the UI
     #[structopt(default_value="10", long)]
-    iterations_per_render: u32
+    iterations_per_render: u32,
+    /// The chance an agent is exposed/infected at the start of the simulation
+    #[structopt(default_value="0.01", long)]
+    seed_infection_chance: f32,
 }
 
 
@@ -51,6 +54,7 @@ fn main() -> Result<(), Error> {
         .load_fast_graph_from_disk(true)
         .sim_length_days(args.sim_length_days)
         .time_steps_per_day(args.time_steps_per_day)
+        .seed_infection_chance(args.seed_infection_chance)
         .build();
 
     println!("{:?}", args);

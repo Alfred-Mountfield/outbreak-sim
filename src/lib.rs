@@ -59,7 +59,7 @@ impl Sim<Uniform> {
         let bytes = read_buffer(synthetic_environment_file.as_path());
         let model = get_root_as_model(&bytes);
 
-        let transmission_chance = 0.005 * 24.0 / get_time_steps_per_day() as f32;
+        let transmission_chance = 0.00005 * 24.0 / get_time_steps_per_day() as f32;
         let mixing_strategy = Uniform { transmission_chance };
         // TODO Ensure that this is non-inclusive
         let bounds = model.bounds().to_owned(); // TODO Ensure that min is (0,0) or handle otherwise

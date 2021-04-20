@@ -27,10 +27,15 @@ impl DiseaseStatus {
                 state: State::Susceptible,
                 infected_for: 0,
             }
-        } else {
+        } else if rng.gen::<f32>() < 0.4 {
             DiseaseStatus {
                 state: State::Exposed,
-                infected_for: rng.gen_range(0..2),
+                infected_for: (rng.gen_range((0.0)..(2.0)) * get_time_steps_per_day() as f32) as TimeStep,
+            }
+        } else {
+            DiseaseStatus {
+                state: State::Infectious,
+                infected_for: (rng.gen_range((2.0)..(12.0)) * get_time_steps_per_day() as f32) as TimeStep,
             }
         }
     }
