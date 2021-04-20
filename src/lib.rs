@@ -107,6 +107,9 @@ pub struct SimBuilder<'a, P: Into<PathBuf>> {
     synthetic_environment_dir: P,
     model_name: &'a str,
     load_fast_graph_from_disk: bool,
+    walking_speed_kph: f32,
+    cycling_speed_kph: f32,
+    driving_speed_kph :f32,
 }
 
 impl<'a, P> SimBuilder<'a, P> where P: Into<PathBuf>{
@@ -115,7 +118,10 @@ impl<'a, P> SimBuilder<'a, P> where P: Into<PathBuf>{
             global_params: GlobalSimParams::default(),
             synthetic_environment_dir,
             model_name,
-            load_fast_graph_from_disk: false
+            load_fast_graph_from_disk: false,
+            walking_speed_kph: 5.0,
+            cycling_speed_kph: 23.5,
+            driving_speed_kph: 60.0,
         }
     }
 
@@ -134,18 +140,18 @@ impl<'a, P> SimBuilder<'a, P> where P: Into<PathBuf>{
         self
     }
     
-    pub fn walking_speed(mut self, walking_speed_kph: f32) -> Self {
-        self.global_params.walking_speed_kph = walking_speed_kph;
+    pub fn walking_speed_kph(mut self, walking_speed_kph: f32) -> Self {
+        self.walking_speed_kph = walking_speed_kph;
         self
     }
     
-    pub fn cycling_speed(mut self, cycling_speed_kph: f32) -> Self {
-        self.global_params.cycling_speed_kph = cycling_speed_kph;
+    pub fn cycling_speed_kph(mut self, cycling_speed_kph: f32) -> Self {
+        self.cycling_speed_kph = cycling_speed_kph;
         self
     }
     
-    pub fn driving_speed(mut self, driving_speed_kph: f32) -> Self {
-        self.global_params.driving_speed_kph = driving_speed_kph;
+    pub fn driving_speed_kph(mut self, driving_speed_kph: f32) -> Self {
+        self.driving_speed_kph = driving_speed_kph;
         self
     }
     
@@ -154,7 +160,10 @@ impl<'a, P> SimBuilder<'a, P> where P: Into<PathBuf>{
         self
     }
     
-    pub fn build(self) -> Sim<Uniform> {
+    pub fn build(mut self) -> Sim<Uniform> {
+        self.global_params.walking_speed = self.walking_speed_kph * 1000.0 * 24.0 / self.global_params.time_steps_per_day as f32;
+        self.global_params.cycling_speed = self.cycling_speed_kph * 1000.0 * 24.0 / self.global_params.time_steps_per_day as f32;
+        self.global_params.driving_speed = self.driving_speed_kph * 1000.0 * 24.0 / self.global_params.time_steps_per_day as f32;
         Sim::new(self.synthetic_environment_dir, self.model_name, self.load_fast_graph_from_disk, self.global_params)
     }
 }

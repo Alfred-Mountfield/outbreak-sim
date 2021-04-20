@@ -54,9 +54,9 @@ fn tmp_weighted_commute_time<R>(rng: &mut R) -> TimeStep
     where R: Rng + ?Sized
 {
     let time_steps_per_hour: TimeStep = get_time_steps_per_day() / 24;
-    // commute start times range from 4am to 11am
-    let earliest = 4 * time_steps_per_hour;
-    let time_steps_range = 7 * time_steps_per_hour;
+    // commute start times range from 7am to 10:30am
+    let earliest = 7 * time_steps_per_hour;
+    let time_steps_range = (3.5 * time_steps_per_hour as f32) as TimeStep;
 
     earliest + (rng.gen::<f32>() * time_steps_range as f32) as TimeStep
 }

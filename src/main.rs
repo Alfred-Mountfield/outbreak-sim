@@ -8,7 +8,6 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
-use outbreak_sim::disease::State;
 use outbreak_sim::reporting::{intialise_reporting_files, write_concluding_metrics, write_intermediary_metric};
 use outbreak_sim::shared::types::TimeStep;
 
@@ -115,17 +114,6 @@ fn main() -> Result<(), Error> {
                 pixels.resize(size.width, size.height);
             }
 
-            // if time_step % 5 == 0 {
-            //     println!("Time step: {}", time_step);
-            //     println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
-            // }
-            if time_step % args.time_steps_per_day == 0 {
-                println!("Day: {}", time_step / args.time_steps_per_day);
-                println!("Num infected: {}", sim.agents.disease_statuses.iter().filter(|&status| status.state == State::Infectious).count())
-            }
-
-            // let mut time = Instant::now();
-
             // Update internal state and request a redraw
             for _ in 0..args.iterations_per_render {
                 if sim.update(time_step).is_err() {
@@ -135,13 +123,8 @@ fn main() -> Result<(), Error> {
                 write_intermediary_metric(&mut intermediary_report_writer, time_step, &sim.agents).unwrap();
                 time_step += 1;
             }
-            // println!("Took {:.2}s for {} steps", time.elapsed().as_secs_f64(), increment);
 
-            // time = Instant::now();
             world.update(&sim);
-
-            // println!("Draw logic took {:.2}s", time.elapsed().as_secs_f64());
-
             window.request_redraw();
         }
     });

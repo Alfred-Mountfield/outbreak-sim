@@ -10,9 +10,12 @@ pub struct GlobalSimParams {
     pub time_steps_per_day: u32,
     pub sim_length_days: Option<u32>,
     pub seed_infection_chance: f32,
-    pub walking_speed_kph: f32,
-    pub cycling_speed_kph: f32,
-    pub driving_speed_kph: f32,
+    /// spatial unit per time-step
+    pub walking_speed: f32,
+    /// spatial unit per time-step
+    pub cycling_speed: f32,
+    /// spatial unit per time-step
+    pub driving_speed: f32,
 }
 
 impl Default for GlobalSimParams {
@@ -21,9 +24,9 @@ impl Default for GlobalSimParams {
             time_steps_per_day: 48, // every half an hour
             sim_length_days: Some(60),
             seed_infection_chance: 0.001,
-            walking_speed_kph: 5.0,
-            cycling_speed_kph: 23.5,
-            driving_speed_kph: 60.0,
+            walking_speed: 5.0 * 1000.0 * 24.0 / 48.0,
+            cycling_speed: 23.5 * 1000.0 * 24.0 / 48.0,
+            driving_speed: 60.0 * 1000.0 * 24.0 / 48.0,
         }
     }
 }
@@ -54,21 +57,21 @@ pub fn get_seed_infection_chance() -> f32 {
 #[inline]
 pub fn get_walking_speed() -> f32 {
     unsafe {
-        GLOBAL_PARAMS.get_unchecked().walking_speed_kph
+        GLOBAL_PARAMS.get_unchecked().walking_speed
     }
 }
 
 #[inline]
 pub fn get_cycling_speed() -> f32 {
     unsafe {
-        GLOBAL_PARAMS.get_unchecked().cycling_speed_kph
+        GLOBAL_PARAMS.get_unchecked().cycling_speed
     }
 }
 
 #[inline]
 pub fn get_driving_speed() -> f32 {
     unsafe {
-        GLOBAL_PARAMS.get_unchecked().driving_speed_kph
+        GLOBAL_PARAMS.get_unchecked().driving_speed
     }
 }
 
