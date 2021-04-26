@@ -84,7 +84,7 @@ impl WorldGrid {
             let pop_density = c.total as f32 / self.max_at_cell as f32;
             let infected_ratio = c.num_infectious as f32 / c.total as f32;
 
-            let color = [(infected_ratio * 255.0) as u8, (pop_density * (1.0 - infected_ratio) * 255.0) as u8, 0, 0];
+            let color = [(infected_ratio * 900.0) as u8, (pop_density * (1.0 - infected_ratio) * 255.0) as u8, 0, 0];
             pix.copy_from_slice(&color);
         }
     }

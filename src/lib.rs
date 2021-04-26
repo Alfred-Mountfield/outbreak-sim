@@ -18,6 +18,7 @@ use crate::disease::{MixingStrategy, Uniform};
 use crate::events::Events;
 use crate::routing::{GranularGrid, nodes_to_granular_grid};
 use crate::shared::{GlobalSimParams, set_up_global_params, get_time_steps_per_day, get_simulation_length_in_days};
+use crate::routing::transit::{load_fast_graph_from_disk, save_fast_graph_to_disk};
 
 // TODO Revisit public access
 pub mod agents;
@@ -38,7 +39,7 @@ impl fmt::Display for EndOfSimulationError {
     }
 }
 
-// TODO derive Clone when FastGraphs updates
+#[derive(Clone)]
 pub struct Sim<M: MixingStrategy> {
     pub agents: Agents,
     pub events: Events,
@@ -50,7 +51,7 @@ pub struct Sim<M: MixingStrategy> {
 
 impl Sim<Uniform> {
     // TODO Builder pattern for input params?
-    fn new<P>(synthetic_environment_dir: P, model_name: &str, load_fast_graph_from_disk: bool, global_params: GlobalSimParams) -> Self
+    fn new<P>(synthetic_environment_dir: P, model_name: &str, load_cached_fast_graph: bool, global_params: GlobalSimParams) -> Self
         where P: Into<PathBuf>
     {
         set_up_global_params(global_params);
@@ -68,13 +69,13 @@ impl Sim<Uniform> {
         let mut agents = agents::Agents::new(&model, &mut containers);
         let events = events::Events::new(&mut agents);
 
-        let fast_graph = match load_fast_graph_from_disk {
+        let fast_graph = match load_cached_fast_graph {
             true => {
-                fast_paths::load_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap()
+                load_fast_graph_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap()
             }
             false => {
                 let fast_graph = get_fast_graph(&model.transit_graph());
-                fast_paths::save_to_disk(&fast_graph, &*("fast_paths/".to_string() + model_name + ".fp")).unwrap();
+                save_fast_graph_to_disk(&fast_graph, &*("fast_paths/".to_string() + model_name + ".fp")).unwrap();
                 fast_graph
             }
         };

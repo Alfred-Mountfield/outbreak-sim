@@ -7,7 +7,7 @@ use outbreak_sim::shared::get_time_steps_per_day;
 fn bench_event_loop(c: &mut Criterion) {
     let mut group = c.benchmark_group("Event Loop");
     for (model_dir, model_name) in [("python/synthetic_environments/examples", "isle_of_dogs"),
-        ("python/synthetic_environments/examples", "greater_manchester"), ("python/synthetic_environments/output", "london_se_commuter_ring")].iter()
+        ("python/synthetic_environments/examples", "greater_manchester"), ("python/synthetic_environments/output", "london_s_commuter_ring")].iter()
     {
         let sim = outbreak_sim::SimBuilder::new(&Path::new(model_dir), model_name)
             .load_fast_graph_from_disk(true)
@@ -16,13 +16,9 @@ fn bench_event_loop(c: &mut Criterion) {
         group.throughput(Throughput::Elements(num_agents));
         group.bench_with_input(BenchmarkId::new(format!("One Day: {} time-steps", get_time_steps_per_day()), model_name), &num_agents, |b, _| {
             b.iter_batched(
-                // TODO change this to .clone() when FastGraphs updates with derive
                 || {
-                    let sim = outbreak_sim::SimBuilder::new(&Path::new(model_dir), model_name)
-                        .load_fast_graph_from_disk(true)
-                        .build();
-                    let path_calculator = fast_paths::create_calculator(&sim.fast_graph);
-                    (sim, path_calculator)
+                    (sim.clone(),
+                    fast_paths::create_calculator(&sim.fast_graph))
                 },
                 |(mut sim, mut path_calculator)| {
                     for time_step in 0..get_time_steps_per_day() {

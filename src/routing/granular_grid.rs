@@ -4,7 +4,7 @@ use std::ops::{Index, IndexMut};
 
 use crate::Bounds;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct GranularGrid<T> {
     pub rows: u32,
     pub cols: u32,
