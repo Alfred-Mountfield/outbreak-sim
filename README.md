@@ -2,6 +2,8 @@
 
 A large-scale Epidemiological Agent-Based model.
 
+[![DOI](https://zenodo.org/badge/317508446.svg)](https://zenodo.org/badge/latestdoi/317508446)
+
 ## Repository Layout
 
 ### Synthetic Environment Generator and Reporting Utilities ([.\python](python))
