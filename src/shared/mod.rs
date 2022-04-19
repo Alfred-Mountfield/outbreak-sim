@@ -5,7 +5,7 @@ use crate::shared::types::TimeStep;
 
 pub mod types;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GlobalSimParams {
     pub time_steps_per_day: u32,
     pub sim_length_days: Option<u32>,

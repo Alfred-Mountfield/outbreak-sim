@@ -71,7 +71,13 @@ impl Sim<Uniform> {
 
         let fast_graph = match load_cached_fast_graph {
             true => {
-                load_fast_graph_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")).unwrap()
+                match load_fast_graph_from_disk(&*("fast_paths/".to_string() + model_name + ".fp")) {
+                    Ok(graph) => { graph }
+                    Err(e) => {
+                        eprintln!("fast graph couldn't be read from disk");
+                        panic!("{:?}", e);
+                    }
+                }
             }
             false => {
                 let fast_graph = get_fast_graph(&model.transit_graph());
@@ -94,7 +100,7 @@ impl Sim<Uniform> {
 
     pub fn update(&mut self, time_step: TimeStep) -> Result<(), EndOfSimulationError> {
         if get_simulation_length_in_days().is_some() && time_step >= get_simulation_length_in_days().unwrap() * get_time_steps_per_day() {
-            return Err(EndOfSimulationError)
+            return Err(EndOfSimulationError);
         }
         let mut fast_path_calculator = fast_paths::create_calculator(&self.fast_graph);
         self.events.update(time_step, &mut self.agents, &mut self.containers, &self.transit_granular_grid, &self.fast_graph, &mut fast_path_calculator);
@@ -110,10 +116,10 @@ pub struct SimBuilder<'a, P: Into<PathBuf>> {
     load_fast_graph_from_disk: bool,
     walking_speed_kph: f32,
     cycling_speed_kph: f32,
-    driving_speed_kph :f32,
+    driving_speed_kph: f32,
 }
 
-impl<'a, P> SimBuilder<'a, P> where P: Into<PathBuf>{
+impl<'a, P> SimBuilder<'a, P> where P: Into<PathBuf> {
     pub fn new(synthetic_environment_dir: P, model_name: &'a str) -> Self {
         SimBuilder {
             global_params: GlobalSimParams::default(),
@@ -130,37 +136,37 @@ impl<'a, P> SimBuilder<'a, P> where P: Into<PathBuf>{
         self.global_params.time_steps_per_day = time_steps;
         self
     }
-    
+
     pub fn sim_length_days(mut self, days: Option<u32>) -> Self {
         self.global_params.sim_length_days = days;
         self
     }
-    
+
     pub fn seed_infection_chance(mut self, seed_infection_chance: f32) -> Self {
         self.global_params.seed_infection_chance = seed_infection_chance;
         self
     }
-    
+
     pub fn walking_speed_kph(mut self, walking_speed_kph: f32) -> Self {
         self.walking_speed_kph = walking_speed_kph;
         self
     }
-    
+
     pub fn cycling_speed_kph(mut self, cycling_speed_kph: f32) -> Self {
         self.cycling_speed_kph = cycling_speed_kph;
         self
     }
-    
+
     pub fn driving_speed_kph(mut self, driving_speed_kph: f32) -> Self {
         self.driving_speed_kph = driving_speed_kph;
         self
     }
-    
+
     pub fn load_fast_graph_from_disk(mut self, load_from_disk: bool) -> Self {
         self.load_fast_graph_from_disk = load_from_disk;
         self
     }
-    
+
     pub fn build(mut self) -> Sim<Uniform> {
         self.global_params.walking_speed = self.walking_speed_kph * 1000.0 * 24.0 / self.global_params.time_steps_per_day as f32;
         self.global_params.cycling_speed = self.cycling_speed_kph * 1000.0 * 24.0 / self.global_params.time_steps_per_day as f32;

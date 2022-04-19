@@ -1,10 +1,11 @@
 use std::path::Path;
 
-use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main, Throughput};
+use criterion::{BatchSize, BenchmarkId, Criterion, criterion_group, criterion_main, Throughput};
 use fast_paths::FastGraph;
 use nonmax::NonMaxU64;
 use rand::{Rng, thread_rng};
 use rand::distributions::Standard;
+use rand::seq::SliceRandom;
 use rayon::prelude::*;
 
 use outbreak_sim::{get_root_as_model, read_buffer, Vec2};
@@ -102,8 +103,8 @@ fn bench_choose_nearby_nodes(c: &mut Criterion) {
 }
 
 // TODO Convert this from a batch test to benchmark an individual routing scenario
-fn bench_route_transit_commutes(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Commute Routing by Transit");
+fn bench_choose_and_route_transit_commutes(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Commute Routing by Transit with Node Choosing");
 
     for &model_name in ["isle_of_dogs", "greater_manchester"].iter() {
         let sim = outbreak_sim::SimBuilder::new(&Path::new("python/synthetic_environments/examples"), model_name)
@@ -132,6 +133,61 @@ fn bench_route_transit_commutes(c: &mut Criterion) {
     }
     group.finish();
 }
+
+fn bench_fast_graph_route(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Commute Routing by Transit No Choosing");
+
+    for (model_dir, model_name) in [("python/synthetic_environments/examples", "isle_of_dogs"),
+        ("python/synthetic_environments/examples", "greater_manchester"), ("python/synthetic_environments/output", "wales"),
+        ("python/synthetic_environments/output", "london_s_commuter_ring")].iter()
+    {
+        let sim = outbreak_sim::SimBuilder::new(&Path::new(model_dir), model_name)
+            .load_fast_graph_from_disk(true)
+            .build();
+        let mut rng = thread_rng();
+        let mut node_pairs: Vec<(usize, usize)> = sim.agents.household_container.iter()
+            .zip(sim.agents.occupational_container.iter())
+            .filter_map(|(&household_idx, occupational_idx)| {
+                if let Some(work_idx) = occupational_idx {
+                    Some((sim.containers.get(household_idx).unwrap().pos, sim.containers.get(work_idx.get()).unwrap().pos))
+                } else {
+                    None
+                }
+            })
+            .map(|(household_pos, workplace_pos)| {
+                let src_node = sample_nearby_from_grid(&sim.transit_granular_grid, (household_pos.y(), household_pos.x()), 8_000.0, 1, &mut rng).unwrap();
+                let dest_node = sample_nearby_from_grid(&sim.transit_granular_grid, (workplace_pos.y(), workplace_pos.x()), 8_000.0, 1, &mut rng).unwrap();
+                (src_node[0], dest_node[0])
+            }).collect();
+
+        node_pairs.shuffle(&mut thread_rng());
+
+        let mut node_pairs_iter = node_pairs.iter();
+
+        let mut next = || {
+            return if let Some(pair) = node_pairs_iter.next() {
+                pair
+            } else {
+                node_pairs_iter = node_pairs.iter();
+                node_pairs_iter.next().unwrap()
+            };
+        };
+
+        group.bench_function(
+            BenchmarkId::new("Commute Routing", model_name),
+            move |b| b.iter_batched(
+                || (fast_paths::create_calculator(&sim.fast_graph), next()),
+                |(path_calculator, pair)| {
+                    let mut path_calculator = path_calculator;
+                    path_calculator.calc_path(&sim.fast_graph, pair.0, pair.1)
+                },
+                BatchSize::LargeInput,
+            ),
+        );
+    }
+    group.finish();
+}
+
 
 fn bench_direct_commute_calc(c: &mut Criterion) {
     let mut group = c.benchmark_group("Direct Commute Routing (non-transit)");
@@ -180,5 +236,5 @@ fn bench_distance(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_build_granular_grid, bench_choose_nearby_nodes, bench_route_transit_commutes, bench_direct_commute_calc, bench_distance);
+criterion_group!(benches, bench_build_granular_grid, bench_choose_nearby_nodes, bench_fast_graph_route, bench_choose_and_route_transit_commutes, bench_direct_commute_calc, bench_distance);
 criterion_main!(benches);
