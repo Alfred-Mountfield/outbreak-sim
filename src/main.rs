@@ -38,7 +38,7 @@ struct Cli {
     #[structopt(default_value="10", long)]
     iterations_per_render: u32,
     /// The chance an agent is exposed/infected at the start of the simulation
-    #[structopt(default_value="0.01", long)]
+    #[structopt(default_value="0.001", long)]
     seed_infection_chance: f32,
 }
 
@@ -51,7 +51,7 @@ fn main() -> Result<(), Error> {
     let mut time_step: TimeStep = 0;
 
     let mut sim = outbreak_sim::SimBuilder::new(&synthetic_environment_dir, &model_name)
-        .load_fast_graph_from_disk(true)
+        .load_fast_graph_from_disk(false)
         .sim_length_days(args.sim_length_days)
         .time_steps_per_day(args.time_steps_per_day)
         .seed_infection_chance(args.seed_infection_chance)

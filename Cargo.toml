@@ -1,7 +1,7 @@
 [package]
 name = "outbreak-sim"
 version = "0.1.0"
-authors = ["Alfred Mountfield <alfred.mountfield@student.manchester.ac.uk>"]
+authors = ["Alfred Mountfield <alfie.mountfield@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -14,7 +14,7 @@ rand = "0.8.3"
 pixels = "0.2.0"
 winit = "0.24.0"
 winit_input_helper = "0.9.0"
-flatbuffers = "0.7.0"
+flatbuffers = "2.1.1"
 fast_paths = "0.2.0"
 rayon = "1.5.0"
 nonmax = "0.5.0"

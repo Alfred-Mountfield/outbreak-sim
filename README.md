@@ -32,8 +32,8 @@ and a set of benchmarks in [.\benches](benches).
 ## Requirements
 
 * [Rust](https://www.rust-lang.org/tools/install)
-* [FlatBuffer Compiler] (https://google.github.io/flatbuffers/flatbuffers_guide_building.html) that's accessible on the
-  path as `flatc`
+* [FlatBuffer Compiler](https://google.github.io/flatbuffers/flatbuffers_guide_building.html) that's accessible on the
+  path as `flatc` with a version of at least 2.0.0
 
 ## Setup
 

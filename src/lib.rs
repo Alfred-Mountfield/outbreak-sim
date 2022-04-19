@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use fast_paths::FastGraph;
 
 pub use flatbuffer::Bounds;
-pub use flatbuffer::get_root_as_model;
+pub use flatbuffer::root_as_model;
 pub use flatbuffer::Model;
 pub use flatbuffer::read_buffer;
 pub use flatbuffer::TransitGraph;
@@ -58,7 +58,7 @@ impl Sim<Uniform> {
         let mut synthetic_environment_file = synthetic_environment_dir.into().join(model_name);
         synthetic_environment_file.set_extension("txt");
         let bytes = read_buffer(synthetic_environment_file.as_path());
-        let model = get_root_as_model(&bytes);
+        let model = root_as_model(&bytes).unwrap();
 
         let transmission_chance = 0.00005 * 24.0 / get_time_steps_per_day() as f32;
         let mixing_strategy = Uniform { transmission_chance };
