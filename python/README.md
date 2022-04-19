@@ -3,17 +3,18 @@
 ## Requirements:
 
 * [Python 3.x > 3.8](https://www.python.org/downloads/)
-* [FlatBuffer Compiler accessible on the path](https://google.github.io/flatbuffers/flatbuffers_guide_building.html)
+* [FlatBuffers 2.x > 2.0.0 Compiler accessible on the path](https://google.github.io/flatbuffers/flatbuffers_guide_building.html)
 
 ## Setup:
 
 ### For Unix-based systems
 
 * Ensure you've installed flatc and ran `.\codegen.sh` as described in the parent directory README
+* Install gdal (using brew you can do this with `brew install gdal`)
 * Using a version of Python greater than 3.8, run:
     * `python -m venv venv`
     * `. .\venv\bin\activate`
-    * `python -m pip install -r requirements.txt`
+    * `python -m pip install -r requirements.lock`
 
 ### For Windows
 
@@ -30,3 +31,12 @@
 * Follow instructions in either:
     * [Synthetic Environment Generation README](synthetic_environments/README.md)
     * [Report Analysis README](report_analysis/README.md)
+
+## Development
+
+### Updating Python Packages
+
+* Update the versions of the top-level dependencies in `requirements.txt`
+* Create a fresh virtual environment
+* `python -m pip install -r requirements.txt` *not `requirements.lock`*
+* `python -m pip freeze > requirements.lock`
